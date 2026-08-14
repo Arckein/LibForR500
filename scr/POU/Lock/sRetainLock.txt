@@ -1,0 +1,5 @@
+TYPE sRetainLock :
+STRUCT
+	Item	: ARRAY [1..16] OF sRetainLockItem;
+END_STRUCT
+END_TYPE

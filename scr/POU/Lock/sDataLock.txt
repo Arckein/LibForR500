@@ -1,0 +1,10 @@
+TYPE sDataLock :
+STRUCT
+(*Входные значения*)
+	Item	: ARRAY [1..16] OF sDataLockItem;
+	
+(*Выходные значения*)
+	isLockActivate		: BOOL;	//Блокировка активации (открытия / запуска)
+	isLockDeactivate	: BOOL;	//Блокировка деактивации (закрытия / остановки)
+END_STRUCT
+END_TYPE
