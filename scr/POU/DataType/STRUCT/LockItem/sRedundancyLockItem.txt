@@ -1,0 +1,6 @@
+TYPE sRedundancyLockItem :
+STRUCT
+	enEnable	: BOOL	:= TRUE;	//Активность блокировочного ключа
+	fbDelay		: TON;				//Таймер задержки
+END_STRUCT
+END_TYPE

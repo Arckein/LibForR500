@@ -1,0 +1,6 @@
+TYPE sRetainLockItem :
+STRUCT
+	TD	: REAL;					//Уставка задержки срабатывания блокировочного ключа
+	RDD	: sRedundancyLockItem;	//Компоненты резервирования
+END_STRUCT
+END_TYPE
