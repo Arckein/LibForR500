@@ -19,8 +19,10 @@ FOR i := 1 TO 16 DO
 		END_CASE
 		Data.Item[i].Command	:= eCommand.None;
 	(*Конфигурирование таймера*)
-		Data.Item[i].RTD.RDD.fbDelay.IN	:= Data.Item[i].Condition;
-		Data.Item[i].RTD.RDD.fbDelay.PT	:= TO_TIME(Data.Item[i].RTD.TD*1000);
+		Data.Item[i].RTD.RDD.fbDelay (
+								IN	:= Data.Item[i].Condition,
+								PT	:= TO_TIME(Data.Item[i].RTD.TD*1000)
+								);
 	(*Основная логика*)
 		(*Блокировка включена*)
 			IF NOT Data.Item[i].RTD.RDD.enEnable THEN
@@ -35,8 +37,8 @@ FOR i := 1 TO 16 DO
 			ELSE
 				Data.Item[i].Trip	:= FALSE;	//Сбрасываем сработку
 			
-				Data.Item[i].RTD.RDD.fbDelay.IN	:= FALSE;	//Сбрасываем таймер
-				Data.Item[i].TimeLeft			:= 0;		//Сбрасываем обратный отсчет
+				Data.Item[i].RTD.RDD.fbDelay	(IN	:= FALSE);	//Сбрасываем таймер
+				Data.Item[i].TimeLeft			:= 0;			//Сбрасываем обратный отсчет
 			END_IF
 END_FOR
 
