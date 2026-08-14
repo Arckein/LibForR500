@@ -1,0 +1,38 @@
+	Input				
+					
+	Output				
+					
+	InOut				
+					
+	Temp				
+	ID	Int	0.0		
+	Constant				
+					
+	Return				
+	LOCK_Driver	Void			
+
+
+#ID := 0;
+
+IF "Lock".Count > 0 THEN
+    FOR #ID := 1 TO "Lock".Count DO
+        // Блокировки 1-14 на запуск/открытие/включение
+        "Lock".Item[#ID].isLock_1 :=
+        ("Lock".Item[#ID].ACT_1 AND "Lock".Item[#ID].CND_1)
+        OR ("Lock".Item[#ID].ACT_2 AND "Lock".Item[#ID].CND_2)
+        OR ("Lock".Item[#ID].ACT_3 AND "Lock".Item[#ID].CND_3)
+        OR ("Lock".Item[#ID].ACT_4 AND "Lock".Item[#ID].CND_4)
+        OR ("Lock".Item[#ID].ACT_5 AND "Lock".Item[#ID].CND_5)
+        OR ("Lock".Item[#ID].ACT_6 AND "Lock".Item[#ID].CND_6)
+        OR ("Lock".Item[#ID].ACT_7 AND "Lock".Item[#ID].CND_7);
+        
+        "Lock".Item[#ID].isLock_2 :=
+        ("Lock".Item[#ID].ACT_8 AND "Lock".Item[#ID].CND_8)
+        OR ("Lock".Item[#ID].ACT_9 AND "Lock".Item[#ID].CND_9)
+        OR ("Lock".Item[#ID].ACT_10 AND "Lock".Item[#ID].CND_10)
+        OR ("Lock".Item[#ID].ACT_11 AND "Lock".Item[#ID].CND_11)
+        OR ("Lock".Item[#ID].ACT_12 AND "Lock".Item[#ID].CND_12)
+        OR ("Lock".Item[#ID].ACT_13 AND "Lock".Item[#ID].CND_13)
+        OR ("Lock".Item[#ID].ACT_14 AND "Lock".Item[#ID].CND_14);
+    END_FOR;
+END_IF;

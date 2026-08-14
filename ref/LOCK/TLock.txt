@@ -1,0 +1,31 @@
+	ACT_1	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_1	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_2	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_2	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_3	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_3	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_4	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_4	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_5	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_5	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_6	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_6	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_7	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_7	Bool	false	True	True	True	False	 Включение блокировки
+	isLock_1	Bool	false	True	True	True	False	 Интегральный признак блокировки запуска/открытия/включения
+	RES_BOOL_1	Bool	false	True	True	True	False	 Резерв
+	ACT_8	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_8	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_9	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_9	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_10	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_10	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_11	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_11	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_12	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_12	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_13	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_13	Bool	false	True	True	True	False	 Включение блокировки
+	ACT_14	Bool	false	True	True	True	False	 Признак использования блокировки
+	CND_14	Bool	false	True	True	True	False	 Включение блокировки
+	isLock_2	Bool	false	True	True	True	False	 Интегральный признак блокировки останова/закрытия/выключения

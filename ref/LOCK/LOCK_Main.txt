@@ -1,0 +1,176 @@
+	Input				
+	Enable	Bool			
+	Output				
+					
+	InOut				
+					
+	Temp				
+	ID	Int	0.0		
+	Constant				
+					
+	Return				
+
+
+IF #Enable THEN
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-1
+    
+    // Автоматы питания выключены
+    "Lock".Item[1].CND_1 := NOT "DI".Item[22].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[1].CND_2 := NOT "DIAGDP".MS[1].STATE[3];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[1].CND_3 := "EPS".AREA[1].EPS[1].LTC OR "EPS".AREA[1].EPS[2].LTC OR "EPS".AREA[1].EPS[3].LTC OR "EPS".AREA[1].EPS[4].LTC OR "EPS".AREA[1].EPS[5].LTC OR "EPS".AREA[1].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-2
+    
+    // Автоматы питания выключены
+    "Lock".Item[2].CND_1 := NOT "DI".Item[34].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[2].CND_2 := NOT "DIAGDP".MS[1].STATE[4];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[2].CND_3 := "EPS".AREA[2].EPS[1].LTC OR "EPS".AREA[2].EPS[2].LTC OR "EPS".AREA[2].EPS[3].LTC OR "EPS".AREA[2].EPS[4].LTC OR "EPS".AREA[2].EPS[5].LTC OR "EPS".AREA[2].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-3
+    
+    // Автоматы питания выключены
+    "Lock".Item[3].CND_1 := NOT "DI".Item[46].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[3].CND_2 := NOT "DIAGDP".MS[1].STATE[5];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[3].CND_3 := "EPS".AREA[3].EPS[1].LTC OR "EPS".AREA[3].EPS[2].LTC OR "EPS".AREA[3].EPS[3].LTC OR "EPS".AREA[3].EPS[4].LTC OR "EPS".AREA[3].EPS[5].LTC OR "EPS".AREA[3].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-4
+    
+    // Автоматы питания выключены
+    "Lock".Item[4].CND_1 := NOT "DI".Item[58].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[4].CND_2 := NOT "DIAGDP".MS[1].STATE[6];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[4].CND_3 := "EPS".AREA[4].EPS[1].LTC OR "EPS".AREA[4].EPS[2].LTC OR "EPS".AREA[4].EPS[3].LTC OR "EPS".AREA[4].EPS[4].LTC OR "EPS".AREA[4].EPS[5].LTC OR "EPS".AREA[4].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-5
+    
+    // Автоматы питания выключены
+    "Lock".Item[5].CND_1 := NOT "DI".Item[70].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[5].CND_2 := NOT "DIAGDP".MS[1].STATE[7];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[5].CND_3 := "EPS".AREA[5].EPS[1].LTC OR "EPS".AREA[5].EPS[2].LTC OR "EPS".AREA[5].EPS[3].LTC OR "EPS".AREA[5].EPS[4].LTC OR "EPS".AREA[5].EPS[5].LTC OR "EPS".AREA[5].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-6
+    
+    // Автоматы питания выключены
+    "Lock".Item[6].CND_1 := NOT "DI".Item[82].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[6].CND_2 := NOT "DIAGDP".MS[1].STATE[8];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[6].CND_3 := "EPS".AREA[6].EPS[1].LTC OR "EPS".AREA[6].EPS[2].LTC OR "EPS".AREA[6].EPS[3].LTC OR "EPS".AREA[6].EPS[4].LTC OR "EPS".AREA[6].EPS[5].LTC OR "EPS".AREA[6].EPS[6].LTC;
+    
+    
+
+    //========================================================
+    // Блокировки пуска питетеля 11-7
+    
+    // Автоматы питания выключены
+    "Lock".Item[7].CND_1 := NOT "DI".Item[94].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[7].CND_2 := NOT "DIAGDP".MS[1].STATE[9];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[7].CND_3 := "EPS".AREA[7].EPS[1].LTC OR "EPS".AREA[7].EPS[2].LTC OR "EPS".AREA[7].EPS[3].LTC OR "EPS".AREA[7].EPS[4].LTC OR "EPS".AREA[7].EPS[5].LTC OR "EPS".AREA[7].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска питетеля 11-8
+    
+    // Автоматы питания выключены
+    "Lock".Item[8].CND_1 := NOT "DI".Item[106].Value;
+    
+    // Нет связи с ПЧ насоса по Profibus-DP
+    "Lock".Item[8].CND_2 := NOT "DIAGDP".MS[1].STATE[10];
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[8].CND_3 := "EPS".AREA[8].EPS[1].LTC OR "EPS".AREA[8].EPS[2].LTC OR "EPS".AREA[8].EPS[3].LTC OR "EPS".AREA[8].EPS[4].LTC OR "EPS".AREA[8].EPS[5].LTC OR "EPS".AREA[8].EPS[6].LTC;
+    
+    
+    
+    //========================================================
+    // Блокировки пуска насоса 11-P1
+    
+    // Силовой автомат выключен
+    "Lock".Item[9].CND_1 := NOT "DI".Item[119].Value;
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[9].CND_2 := "EPS".AREA[9].EPS[1].LTC;
+    
+    
+    //========================================================
+    // Блокировки пуска насоса 11-P2
+    
+    // Силовой автомат выключен
+    "Lock".Item[10].CND_1 := NOT "DI".Item[127].Value;
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[10].CND_2 := "EPS".AREA[10].EPS[1].LTC;
+    
+(*    
+    //========================================================
+    // Блокировки пуска насоса 11-P3
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[11].CND_1 := "EPS".AREA[11].EPS[1].LTC;
+    
+    
+    //========================================================
+    // Блокировки пуска насоса 11-P4
+    
+    // Есть не квитированные ПАЗ
+    "Lock".Item[12].CND_1 := "EPS".AREA[12].EPS[1].LTC;
+    *)
+    
+    // Вызов функции обработки блокировок   
+    "LOCK_Driver"();
+    
+ELSE
+    FOR #ID := 1 TO "Lock".Count DO
+        "Lock".Item[#ID].isLock_1 := false;
+        "Lock".Item[#ID].isLock_2 := false;
+    END_FOR;
+    
+(*  FOR #ID := 1 TO "LOCK2".Count DO
+    "LOCK2".Item[#ID].isLock_1 := false;
+    "LOCK2".Item[#ID].isLock_2 := false;
+  END_FOR; *)
+    
+END_IF;

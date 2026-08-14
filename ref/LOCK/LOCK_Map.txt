@@ -1,0 +1,44 @@
+	Input				
+					
+	Output				
+					
+	InOut				
+	Init	Bool			
+	Temp				
+					
+	Constant				
+					
+	Return				
+
+
+// ID блокировок для оборудования устанавливаются при сброшенном бите инициализации
+IF NOT #Init THEN
+   // Клапаны отсечные
+    
+   // Клапаны регулируемые
+    
+   // Моторы (Питатели)
+   "CONV_DP".Item[1].Ilock_ID := 1;
+   "CONV_DP".Item[2].Ilock_ID := 2;
+   "CONV_DP".Item[3].Ilock_ID := 3;
+   "CONV_DP".Item[4].Ilock_ID := 4;
+   "CONV_DP".Item[5].Ilock_ID := 5;
+   "CONV_DP".Item[6].Ilock_ID := 6;
+   "CONV_DP".Item[7].Ilock_ID := 7;
+   "CONV_DP".Item[8].Ilock_ID := 8;
+   
+   // Моторы (Насосы)
+   "MOTOR".Item[1].Ilock_ID := 9;
+   "MOTOR".Item[2].Ilock_ID := 10;
+   //"MOTORDP".Item[1].Ilock_ID := 11;
+   //"MOTORDP".Item[2].Ilock_ID := 12;
+   
+   // АВР
+    
+   // ПИД-регуляторы
+   
+   
+    // Установка бита инициализации
+    #Init := true;
+END_IF;
+
