@@ -1,0 +1,7 @@
+TYPE uMechStatus :
+UNION
+	AsDWord			: DWORD;		//Комплексный статус
+	State			: sMechState;	//Доступ к стуктуре статусов (битам)
+	MemoryBranch	: sMechMemory;	//Доступ к байтам статусов
+END_UNION
+END_TYPE

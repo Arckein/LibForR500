@@ -1,0 +1,7 @@
+TYPE sMechMemory :
+STRUCT
+    Mode	: BYTE;	//Слово 1, байт 0 - "Режимы работы"
+    State	: BYTE; //Слово 1, байт 1 - "Состояния механизма"
+    Errors	: WORD; //Слово 2 - "Аварии и Блокировки"
+END_STRUCT
+END_TYPE

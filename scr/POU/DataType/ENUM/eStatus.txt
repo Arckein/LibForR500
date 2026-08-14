@@ -1,0 +1,73 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eStatus :
+(
+(*Универсальные статусы*)
+	(*Аппаратная диагностика и качество*)
+		Disabled		:= 0,	//Отключен
+		Repair			:= 1,	//Ремонт
+		Valid			:= 2,	//Признак достоверности
+		ModuleFault		:= 3,	//Аппаратная ошибка модуля
+		ChFault			:= 4,	//Аппаратная ошибка канала
+		ExternalBreak	:= 5,	//Обрыв линии связи/Интерфейса
+		ConfigFault		:= 6,	//Ошибка конфигурации
+	(*Базовые состояния механизмов*)
+		Stopped			:= 7,	//Остановлено
+		Locked			:= 8,	//Заблокировано защитами
+		Unknown			:= 9,	//Неопределенное
+    	(*Резерв*)
+			ReservUniversalStatus1	:= 10,
+			ReservUniversalStatus2	:= 11,
+			ReservUniversalStatus3	:= 12,
+			ReservUniversalStatus4	:= 13,
+			ReservUniversalStatus5	:= 14,
+			ReservUniversalStatus6	:= 15,
+			ReservUniversalStatus7	:= 16,
+			ReservUniversalStatus8	:= 17,
+			ReservUniversalStatus9	:= 18,
+			ReservUniversalStatus10	:= 19,
+
+(*Групповые статусы*)
+	(*Резерв*)
+		ReservGroupStatus1	:= 20,
+		ReservGroupStatus2	:= 21,
+		ReservGroupStatus3	:= 22,
+		ReservGroupStatus4	:= 23,
+		ReservGroupStatus5	:= 24,
+		ReservGroupStatus6	:= 25,
+		ReservGroupStatus7	:= 26,
+		ReservGroupStatus8	:= 27,
+		ReservGroupStatus9	:= 28,
+		ReservGroupStatus10	:= 29,
+
+(*Индивидуальные статусы*)
+	(*AnalogIn (AI)*)
+		ShortCircuit	:= 30, //Выход за верхнюю границу достоверности
+		Break			:= 31, //Выход за нижнюю границу достоверности
+    	(*Резерв*)
+			ReservAIStatus1	:= 32,
+			ReservAIStatus2	:= 33,
+			ReservAIStatus3	:= 34,
+			ReservAIStatus4	:= 35,
+	
+	(*Valve*)
+		Closed			:= 36,	//Полностью закрыто
+		Opened			:= 37,	//Полностью открыто
+		Closing			:= 38,	//В процессе закрытия
+		Opening			:= 39,	//В процессе открытия
+		Intermediate	:= 40,	//Промежуточное положение
+		(*Резерв*)
+			ReservValveStatus1	:= 41,
+			ReservValveStatus2	:= 42,
+			ReservValveStatus3	:= 43,
+			ReservValveStatus4	:= 44,
+			ReservValveStatus5	:= 45,
+	
+	(*Motor*)
+		Running	:= 46,	//Работает
+		(*Резерв*)
+			ReservMotorStatus1	:= 47,
+			ReservMotorStatus2	:= 48,
+			ReservMotorStatus3	:= 49
+);
+END_TYPE

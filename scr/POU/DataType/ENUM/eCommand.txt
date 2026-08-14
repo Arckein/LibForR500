@@ -1,0 +1,80 @@
+(*Блок команд*)  
+TYPE eCommand :
+(
+(*Универсальные команды*)
+	None	:= 0,	//Нет команды
+	Enable	:= 1,	//Вкл/Выкл обработку логики ФБ
+	Imit	:= 2,	//Вкл/Выкл режим "Имитация"
+	Repair	:= 3,	//Вкл/Выкл режим "Ремонт"
+	Reset	:= 4,	//Сброс/Квитирование
+	Stop	:= 5,	//Универсальная команда "Стоп"
+	Auto	:= 6,	//Перевод в режим "Автомат"
+	Manual	:= 7,	//Перевод в режим "Ручной"
+	(*Виртуальный ПМУ*)
+		Local	:= 8,	//Перевод в режим "Местный" (виртуальный ключ)
+		Remote	:= 9,	//Перевод в режим "Дистанционный" (виртуальный ключ)
+	(*Резерв*)
+		ReservUniversalCMD1		:= 10,
+		ReservUniversalCMD2		:= 11,
+		ReservUniversalCMD3		:= 12,
+		ReservUniversalCMD4		:= 13,
+		ReservUniversalCMD5		:= 14,
+		ReservUniversalCMD6		:= 15,
+		ReservUniversalCMD7		:= 16,
+		ReservUniversalCMD8		:= 17,
+		ReservUniversalCMD9		:= 18,
+		ReservUniversalCMD10	:= 19,
+		
+(*Групповые команды*)
+	Filter		:= 20,	//Вкл/Выкл режим "Фильтрация"
+	AlarmMode	:= 21,	//Вкл/Выкл режим "Сигнализация"
+	Delay		:= 22,	//Вкл/Выкл режим "Задержка срабатывания сигнализации"
+	Invert		:= 23,	//Вкл/Выкл режим "Инверсия"
+	(*Резерв*)
+		ReservGroubCMD1	:= 24,
+		ReservGroubCMD2	:= 25,
+		ReservGroubCMD3	:= 26,
+		ReservGroubCMD4	:= 27,
+		ReservGroubCMD5	:= 28,
+		ReservGroubCMD6	:= 29,
+		
+(*Индивидуальные команды*)
+	(*AnalogIn*)
+		Freezing	:= 30,	//Вкл/Выкл режима "Заморозка"
+		CutOff		:= 31,	//Вкл/Выкл режим "Мертвая зона"
+		UseHH		:= 32,	//Вкл/Выкл режим "Контроль ВАУ"
+		UseH		:= 33,	//Вкл/Выкл режим "Контроль ВПУ"
+		UseL		:= 34,	//Вкл/Выкл режим "Контроль НПУ"
+		UseLL		:= 35,	//Вкл/Выкл режим "Контроль НАУ"
+		(*Резерв*)
+			ReservAICMD1	:= 36,
+			ReservAICMD2	:= 37,
+			ReservAICMD3	:= 38,
+			ReservAICMD4	:= 39,
+	
+	(*AnalogOut*)
+		(*Резерв*)
+			ReservAOCMD1	:= 40,
+			ReservAOCMD2	:= 41,
+			ReservAOCMD3	:= 42,
+			ReservAOCMD4	:= 43,
+			ReservAOCMD5	:= 44,
+			ReservAOCMD6	:= 45,
+			
+	(*Valve*)
+		Open	:= 46,	//Команда "Открыть"
+		Close	:= 47,	//Команда "Закрыть"
+		(*Резерв*)
+			ReservValveCMD1	:= 48,
+			ReservValveCMD2	:= 49,
+			ReservValveCMD3	:= 50,
+	
+	(*Motor*)
+		Start	:= 51,	//Команда "Пуск"
+    	(*Резерв*)
+			ReservMotorCMD1	:= 52,
+			ReservMotorCMD2	:= 53,
+			ReservMotorCMD3	:= 54,
+			ReservMotorCMD4	:= 55
+);
+END_TYPE

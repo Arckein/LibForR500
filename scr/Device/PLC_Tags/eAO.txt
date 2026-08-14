@@ -1,0 +1,14 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eAO :
+(
+	ReservAO1	:= 1,
+	ReservAO2	:= 2,
+	ReservAO3	:= 3,
+	ReservAO4	:= 4,
+	ReservAO5	:= 5,
+	ReservAO6	:= 6,
+	ReservAO7	:= 7,
+	ReservAO8	:= 8
+)	UINT;
+END_TYPE

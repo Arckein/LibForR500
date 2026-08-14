@@ -1,0 +1,35 @@
+METHOD ProcessingValve : UINT
+VAR
+	newValve	: Valve;
+	lenValve	: UINT;
+END_VAR
+(*Задвижка XV1*)
+	(*Входные значения*)
+		IO.Valve[eValve.XV1].RTD.idOpenedLS		:= eDI.ReservDI1;
+		IO.Valve[eValve.XV1].RTD.idClosedLS		:= eDI.ReservDI2;
+		IO.Valve[eValve.XV1].RTD.idPowerState	:= eDI.ReservDI3;
+		IO.Valve[eValve.XV1].RTD.idKeyOfLCP		:= eDI.ReservDI4;
+		//IO.Valve[eValve.XV1].RTD.idLock;
+		//IO.Valve[eValve.XV1].RTD.idEps;
+	(*Конфигурация*)
+		IO.Valve[eValve.XV1].RTD.SafeState		:= eMechSafeState.Deactivate;
+		IO.Valve[eValve.XV1].RTD.dlOpened		:= 10;
+		IO.Valve[eValve.XV1].RTD.dlClosed		:= 10;
+		IO.Valve[eValve.XV1].RTD.dlMoveToOpen	:= 1;
+		IO.Valve[eValve.XV1].RTD.dlMoveToClose	:= 1;
+		IO.Valve[eValve.XV1].RTD.dlPulse		:= 0.5;
+	(*Выходные значения*)
+		IO.Valve[eValve.XV1].RTD.idOpenCMD	:= eDO.ReservDO1;
+		IO.Valve[eValve.XV1].RTD.idCloseCMD	:= eDO.ReservDO2;
+		
+lenValve	:= SIZEOF(IO.Valve) / SIZEOF(IO.Valve[1]);
+FOR i	:= 1 TO lenValve DO
+	newValve (
+		SysInfo			:= System.SystemInfo,
+		InOutManager	:= System.InOutManager,
+		Data			:= IO.Valve[i],
+		rData			:= PersistentVars.Valve_Retain[i]
+	);
+END_FOR
+
+ProcessingValve	:= lenValve;

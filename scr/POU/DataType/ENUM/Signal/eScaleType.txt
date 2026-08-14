@@ -1,0 +1,15 @@
+(*Типизация шкалирования*)
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eScaleType :
+(
+	NaN				:= 0,	//Без масштабирования
+	dLinear			:= 1,	//Линейная (прямая)
+	iLinear			:= 2,	//Линейная (обратная)
+	dQuadratic		:= 3,	//Квадратическая (прямая)
+	iQuadratic		:= 4,	//Квадратическая (обратная)
+	dExponential	:= 5,	//Экспоненциальная (прямая)
+	iExponential	:= 6,	//Экспоненциальная (обратная)
+	byCoeff			:= 7 	//По коэффициенту
+);
+END_TYPE

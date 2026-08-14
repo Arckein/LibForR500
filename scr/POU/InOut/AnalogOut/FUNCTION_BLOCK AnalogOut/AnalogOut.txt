@@ -1,0 +1,56 @@
+FUNCTION_BLOCK AnalogOut
+VAR_INPUT
+	SysInfo	: sSystemInfo;	//Информация о ПЛК
+END_VAR
+VAR_IN_OUT
+	Data	: sDataAO;		//Контейнер данных
+	rData	: sRetainAO;	//Контейнер retain-данных
+END_VAR
+VAR
+	localOut	: REAL;	//Буферизированноые значение "Команда от логики управления"
+END_VAR
+(*Синхронизация памяти*)
+	SyncMemory();
+(*Буферизация входных данных*)
+	localOut	:= Data.EngValue;
+(*Обработка команд внешнего управления*)
+	CASE Data.Command OF
+		eCommand.Enable:
+			Data.RTD.RDD.enEnable	:= NOT Data.RTD.RDD.enEnable;
+		eCommand.Imit:
+			Data.RTD.RDD.enImit		:= NOT Data.RTD.RDD.enImit;
+		eCommand.Repair:
+			Data.RTD.RDD.enRepair	:= NOT Data.RTD.RDD.enRepair;
+	END_CASE
+	Data.Command	:= eCommand.None; 
+	(*Упаковка состояний режимов*)
+		Data.Status.MemoryBranch.Mode	:= 0;
+		Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
+		Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;
+		Data.Status.State.Repair		:= Data.RTD.RDD.enRepair;
+(*Основная логика - вкл*)
+	IF Data.RTD.RDD.enEnable THEN
+	(*Валидация*)
+		Validation(Data);
+	(*Ошибка оборудования*)
+		IF Data.Status.MemoryBranch.Errors <> 0 THEN
+			Data.Out := 0.0; 
+	(*Имитация*)
+		ELSIF Data.RTD.RDD.enImit THEN
+			localOut := LIMIT(Data.RTD.YMin, Data.RTD.RDD.ImitVal, Data.RTD.YMax);
+			Data.Out := ScaleValue(Data);
+	(*Нормальная работа*)
+		ELSE
+			localOut := LIMIT(Data.RTD.YMin, localOut, Data.RTD.YMax);
+			(*Записываем значение для безударного перехода в режим "Имитация"*)
+				Data.RTD.RDD.ImitVal	:= localOut;
+			Data.Out := ScaleValue(mData := Data);
+		END_IF
+(*Очновная логика - выкл*)
+	ELSE
+		Data.Out						:= 0.0;
+		Data.Status.MemoryBranch.Errors	:= 0;
+	END_IF
+
+// Выходной блок не генерирует аварий процесса
+Data.Status.State.ActiveAlarm := eAlarmType.No;

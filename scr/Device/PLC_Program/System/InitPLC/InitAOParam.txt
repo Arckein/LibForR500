@@ -1,0 +1,79 @@
+(*ReservAO1 = C1M5, ch1*)
+	IO.AnalogOut[eAO.ReservAO1].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO1].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO1].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO1].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO1].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO1].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO1].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO1].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO2 = C1M5, ch2*)
+	IO.AnalogOut[eAO.ReservAO2].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO2].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO2].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO2].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO2].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO2].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO2].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO2].RTD.RDD.enImit		:= FALSE;
+
+(*ReservAO3 = C1M5, ch3*)
+	IO.AnalogOut[eAO.ReservAO3].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO3].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO3].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO3].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO3].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO3].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO3].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO3].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO4 = C1M5, ch4*)
+	IO.AnalogOut[eAO.ReservAO4].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO4].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO4].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO4].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO4].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO4].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO4].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO4].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO5 = C1M5, ch5*)
+	IO.AnalogOut[eAO.ReservAO5].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO5].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO5].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO5].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO5].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO5].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO5].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO5].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO6 = C1M5, ch6*)
+	IO.AnalogOut[eAO.ReservAO6].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO6].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO6].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO6].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO6].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO6].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO6].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO6].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO7 = C1M5, ch7*)
+	IO.AnalogOut[eAO.ReservAO7].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO7].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO7].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO7].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO7].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO7].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO7].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO7].RTD.RDD.enImit		:= FALSE;
+	
+(*ReservAO8 = C1M5, ch8*)
+	IO.AnalogOut[eAO.ReservAO8].RTD.XMin			:= 4;
+	IO.AnalogOut[eAO.ReservAO8].RTD.XMax			:= 20;
+	IO.AnalogOut[eAO.ReservAO8].RTD.ScaleType		:= eScaleType.dLinear;
+	IO.AnalogOut[eAO.ReservAO8].RTD.YMin			:= 0;
+	IO.AnalogOut[eAO.ReservAO8].RTD.YMax			:=100;
+	IO.AnalogOut[eAO.ReservAO8].RTD.Coeff			:= 0;
+	IO.AnalogOut[eAO.ReservAO8].RTD.RDD.enEnable	:= TRUE;
+	IO.AnalogOut[eAO.ReservAO8].RTD.RDD.enImit		:= FALSE;

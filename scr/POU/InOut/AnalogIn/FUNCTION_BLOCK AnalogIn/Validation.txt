@@ -1,0 +1,55 @@
+METHOD Validation
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+(*Сбрасываем стек*)
+	mData.Status.MemoryBranch.Errors := 0;
+
+(*Проверка корректности конфигурации*)
+	CASE mData.Rtd.ScaleType OF
+		eScaleType.dLinear,
+		eScaleType.iLinear,
+		eScaleType.dQuadratic,
+		eScaleType.iQuadratic,
+		eScaleType.dExponential,
+		eScaleType.iExponential	:
+								IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+									mData.Status.State.ConfigFault := TRUE;
+								END_IF
+		
+		eScaleType.byCoeff :
+							IF mData.RTD.Coeff <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+								mData.Status.State.ConfigFault := TRUE;
+							END_IF
+		
+		eScaleType.NaN :
+						IF (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+							mData.Status.State.ConfigFault := TRUE;
+						END_IF
+	END_CASE
+	
+	IF mData.RTD.RDD.enFilter AND mData.RTD.TF <= 0.001 THEN
+		mData.Status.State.ConfigFault := TRUE;
+	END_IF
+
+(*Проверка на обрыв цепи*)
+		IF mData.RawValue >= 3.402823E+38 OR mData.RawValue <= -3.402823E+38 THEN
+			mData.Status.State.ExternalBreak := TRUE;
+		END_IF
+
+(*Проверка на исправность модуля*)
+	IF mData.ModuleStatus THEN
+		mData.Status.State.ModuleFault := TRUE;
+	END_IF
+
+(*Проверка на исправность канала*)
+	IF mData.ChStatus THEN
+		mData.Status.State.ChFault := TRUE;
+	END_IF
+
+(*Проверка границ достоверности*)
+	IF mData.RawValue > mData.RTD.ShortCircuitValue THEN
+		mData.Status.State.ShortCircuit := TRUE;
+	ELSIF mData.RawValue < mData.RTD.BreakValue THEN
+		mData.Status.State.Break := TRUE;
+	END_IF

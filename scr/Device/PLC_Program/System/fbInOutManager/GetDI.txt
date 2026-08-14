@@ -1,0 +1,19 @@
+METHOD GetDI : POINTER TO sDataDI
+VAR_INPUT
+	(*Индекс из массива DI*)
+	ID	: UINT;
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;
+END_VAR
+IF ID = 0 THEN
+(*Элемент не используется*)
+	GetDI	:= 0;
+ELSIF ID > 0 AND ID <= SysInfo.SizeDI THEN
+(*Элемент используется и индекс корректен*)
+	GetDI	:= ADR(IO.DiscreteIn[ID]);
+ELSE
+(*Элемент используется, но индекс не корректен*)
+	GetDI	:= 0;
+	isValid	:= FALSE;
+END_IF

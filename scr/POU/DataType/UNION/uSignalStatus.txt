@@ -1,0 +1,7 @@
+TYPE uSignalStatus :
+UNION
+	AsDWord			: DWORD;			//Комплексный статус
+	State   		: sSignalState;		//Доступ к структуре статусов (битам)
+	MemoryBranch	: sSignalMemory;	//Доступ к байтам статусов
+END_UNION
+END_TYPE

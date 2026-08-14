@@ -1,0 +1,14 @@
+TYPE sDataAO :
+STRUCT
+(*Входные значения*)
+	EngValue		: REAL;			//Команда от логики управления
+	ChStatus		: BOOL;			//Статус с канала
+	ModuleStatus	: BOOL;			//Статус с модуля	
+	Command			: eCommand;		//Команды внешнего управления
+	RTD				: sRetainAO;	//Хранимые данные
+
+(* Выходные значения *)
+	Out		: REAL;				//Значение в эл.величине (мА/В) на физический канал
+	Status	: uSignalStatus;	//Признак достоверности и ошибок
+END_STRUCT
+END_TYPE

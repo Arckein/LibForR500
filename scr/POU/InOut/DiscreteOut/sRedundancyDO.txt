@@ -1,0 +1,10 @@
+TYPE sRedundancyDO :
+STRUCT
+	ImitVal		: BOOL;				//Значение для имитации
+	
+	enEnable	: BOOL	:= TRUE;	//Разрешение работы алгоритма
+    enImit		: BOOL;				//Режим ручной имитации
+    enInvert	: BOOL;				//Инверсия выходного физического сигнала
+	enRepair	: bool;				//Режим ремонт
+END_STRUCT
+END_TYPE

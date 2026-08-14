@@ -1,0 +1,7 @@
+METHOD GetAO : POINTER TO sDataAO
+VAR_INPUT
+	ID	: UINT;	//Индекс из массива AO
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;	//Флаг корректной привязки
+END_VAR

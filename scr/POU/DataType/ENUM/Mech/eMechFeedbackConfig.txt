@@ -1,0 +1,8 @@
+TYPE eMechFeedbackConfig :
+(
+	DualFeedback			:= 0,	//Два датчика
+	ActiveFeedbackOnly		:= 1,	//Только датчик активного состояния
+	InactiveFeedbackOnly	:= 2,	//Только датчик неактивного состояния
+	NoFeedback				:= 3	//Без физической обратной связи
+);
+END_TYPE

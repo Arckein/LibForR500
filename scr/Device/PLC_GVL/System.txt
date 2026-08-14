@@ -1,0 +1,7 @@
+{attribute 'qualified_only'}
+VAR_GLOBAL
+	WhatchDog	: BOOL;	//Признак активности OPC UA
+	SystemInfo	: sSystemInfo;
+	
+	InOutManager	: fbInOutManager;
+END_VAR

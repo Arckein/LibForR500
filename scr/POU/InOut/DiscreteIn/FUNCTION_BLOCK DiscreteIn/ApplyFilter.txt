@@ -1,0 +1,34 @@
+METHOD ApplyFilter : BOOL
+VAR_IN_OUT
+	mData	: sDataDI;
+END_VAR
+(*Синхронизация стартового значения фильтра при пуске ПЛК*)
+	IF SysInfo.isInit OR SysInfo.isColdStart THEN
+		mData.RTD.RDD.filteredIn		:= localIn;
+		mData.RTD.RDD.filterTimer	:= 0.0; 
+		ApplyFilter					:= localIn;
+		RETURN;
+	END_IF
+(*Защита от заботого времени фильтра*)
+	IF mData.RTD.TF <= 0.001 THEN
+		mData.RTD.RDD.filteredIn		:= localIn;
+		mData.RTD.RDD.filterTimer	:= 0.0;
+		ApplyFilter := localIn;  
+	    RETURN;
+	END_IF
+  
+(*Если текущий сигнал не соответствует последнему значению сохраненному в фильтре*)
+	IF localIn <> mData.RTD.RDD.filteredIn THEN
+	(*Пускаем таймер*)
+		mData.RTD.RDD.filterTimer := mData.RTD.RDD.filterTimer + SysInfo.CycleTime;
+    (*По истечению таймера формируем отфильтрованное значение*)
+		IF mData.RTD.RDD.filterTimer >= (mData.RTD.TF*1000) THEN
+			mData.RTD.RDD.filteredIn := localIn;
+			mData.RTD.RDD.filterTimer := 0.0;
+		END_IF
+(*Если текущий сигнал соответствует последнему значению сохраненному в фильтре*)
+	ELSE  
+    (*Сбрасываем таймер*)
+		mData.RTD.RDD.filterTimer	:= 0.0;
+	END_IF  
+ApplyFilter	:= mData.RTD.RDD.filteredIn;

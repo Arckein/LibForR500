@@ -1,0 +1,143 @@
+METHOD InputDI : UINT
+VAR
+	newDI	: DiscreteIn;
+	lenDI	: UINT;
+END_VAR
+IO.DiscreteIn[eDI.ReservDI1].In				:= C1M4ch.0;
+IO.DiscreteIn[eDI.ReservDI1].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI1].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI2].In				:= C1M4ch.1;
+IO.DiscreteIn[eDI.ReservDI2].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI2].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI3].In				:= C1M4ch.2;
+IO.DiscreteIn[eDI.ReservDI3].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI3].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI4].In				:= C1M4ch.3;
+IO.DiscreteIn[eDI.ReservDI4].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI4].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI5].In				:= C1M4ch.4;
+IO.DiscreteIn[eDI.ReservDI5].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI5].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI6].In				:= C1M4ch.5;
+IO.DiscreteIn[eDI.ReservDI6].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI6].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI7].In				:= C1M4ch.6;
+IO.DiscreteIn[eDI.ReservDI7].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI7].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI8].In				:= C1M4ch.7;
+IO.DiscreteIn[eDI.ReservDI8].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI8].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI9].In				:= C1M4ch.8;
+IO.DiscreteIn[eDI.ReservDI9].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI9].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI10].In			:= C1M4ch.9;
+IO.DiscreteIn[eDI.ReservDI10].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI10].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI11].In			:= C1M4ch.10;
+IO.DiscreteIn[eDI.ReservDI11].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI11].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI12].In			:= C1M4ch.11;
+IO.DiscreteIn[eDI.ReservDI12].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI12].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI13].In			:= C1M4ch.12;
+IO.DiscreteIn[eDI.ReservDI13].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI13].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI14].In			:= C1M4ch.13;
+IO.DiscreteIn[eDI.ReservDI14].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI14].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI15].In			:= C1M4ch.14;
+IO.DiscreteIn[eDI.ReservDI15].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI15].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI16].In			:= C1M4ch.15;
+IO.DiscreteIn[eDI.ReservDI16].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI16].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI17].In			:= C1M4ch.16;
+IO.DiscreteIn[eDI.ReservDI17].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI17].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI18].In			:= C1M4ch.17;
+IO.DiscreteIn[eDI.ReservDI18].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI18].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI19].In			:= C1M4ch.18;
+IO.DiscreteIn[eDI.ReservDI19].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI19].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI20].In			:= C1M4ch.19;
+IO.DiscreteIn[eDI.ReservDI20].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI20].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI21].In			:= C1M4ch.20;
+IO.DiscreteIn[eDI.ReservDI21].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI21].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI22].In			:= C1M4ch.21;
+IO.DiscreteIn[eDI.ReservDI22].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI22].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI23].In			:= C1M4ch.22;
+IO.DiscreteIn[eDI.ReservDI23].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI23].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI24].In			:= C1M4ch.23;
+IO.DiscreteIn[eDI.ReservDI24].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI24].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI25].In			:= C1M4ch.24;
+IO.DiscreteIn[eDI.ReservDI25].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI25].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI26].In			:= C1M4ch.25;
+IO.DiscreteIn[eDI.ReservDI26].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI26].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI27].In			:= C1M4ch.26;
+IO.DiscreteIn[eDI.ReservDI27].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI27].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI28].In			:= C1M4ch.27;
+IO.DiscreteIn[eDI.ReservDI28].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI28].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI29].In			:= C1M4ch.28;
+IO.DiscreteIn[eDI.ReservDI29].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI29].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI30].In			:= C1M4ch.29;
+IO.DiscreteIn[eDI.ReservDI30].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI30].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI31].In			:= C1M4ch.30;
+IO.DiscreteIn[eDI.ReservDI31].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI31].ModuleStatus	:= C1M4HW;
+
+IO.DiscreteIn[eDI.ReservDI32].In			:= C1M4ch.31;
+IO.DiscreteIn[eDI.ReservDI32].ChStatus		:= C1M4PS = 0;
+IO.DiscreteIn[eDI.ReservDI32].ModuleStatus	:= C1M4HW;
+
+lenDI	:= SIZEOF (IO.DiscreteIn) / SIZEOF (IO.DiscreteIn[1]);
+FOR i	:= 1 TO lenDI DO
+	newDI (
+		SysInfo	:= System.SystemInfo,
+		Data	:= IO.DiscreteIn[i],
+		rData	:= PersistentVars.DiscreteIn_Retain[i]
+	);
+END_FOR
+
+InputDI	:= lenDI;

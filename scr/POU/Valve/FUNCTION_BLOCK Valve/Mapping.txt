@@ -1,0 +1,35 @@
+METHOD Mapping : sMapValid;
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+VAR
+	InputMapValid	: BOOL	:= TRUE;
+	ProtectMapValid	: BOOL	:= TRUE;
+	OutputManValid	: BOOL	:= TRUE;
+END_VAR
+IF InOutManager = 0 THEN
+	Mapping.InputMapValid	:= FALSE;
+	Mapping.ProtectMapValid	:= FALSE;
+	Mapping.OutputManValid	:= FALSE;
+	RETURN;
+END_IF
+
+(*Читаем обратную связь*)
+	mData.pOpenedLS		:= InOutManager.GetDI(mData.RTD.idOpenedLS, InputMapValid);		//КВ "Открыта"
+	mData.pClosedLS		:= InOutManager.GetDI(mData.RTD.idClosedLS, InputMapValid);		//КВ "Закрыта"
+	mData.pKeyOfLCP		:= InOutManager.GetDI(mData.RTD.idKeyOfLCP, InputMapValid);		//Ключ ПМУ
+	mData.pPowerState	:= InOutManager.GetDI(mData.RTD.idPowerState, InputMapValid);	//Состояние опер.цепей
+
+(*Читаем защиты и блокировки*)
+	mData.pLock	:= InOutManager.GetDI(mData.RTD.idLock, ProtectMapValid);	//ФБ "Блокировка"
+	mData.pEPS	:= InOutManager.GetDI(mData.RTD.idEps, ProtectMapValid);	//ФБ "ПАЗ"
+
+(*Читаем контур управления*)
+	mData.pOpenCMD	:= InOutManager.GetDO(mData.RTD.idOpenCMD, OutputManValid);		//Пускатель "Открыть"
+	mData.pCloseCMD	:= InOutManager.GetDO(mData.RTD.idCloseCMD, OutputManValid);	//Пускатель "Закрыть"
+	mData.pStopCMD	:= InOutManager.GetDO(mData.RTD.idStopCMD, OutputManValid);		//Пускатель "Стоп"
+
+(*Формируем качество привязки*)			
+	Mapping.InputMapValid	:= InputMapValid;
+	Mapping.ProtectMapValid	:= ProtectMapValid;
+	Mapping.OutputManValid	:= OutputManValid;

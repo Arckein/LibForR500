@@ -1,0 +1,82 @@
+METHOD CheckAlarms : eAlarmType
+VAR
+	isActiveAlarm	: BOOL;
+	isHH			: BOOL;
+	isH				: BOOL;
+	isL				: BOOL;
+	isLL			: BOOL;
+END_VAR
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+(*Сбрасываем стек*)
+	CheckAlarms	:= eAlarmType.No;
+
+(*Вычисляем активную сигнализацию*)
+	(*ВАУ, если активная*)
+		IF mData.RTD.RDD.enUseHH THEN	
+			IF mData.EngValue >= mData.RTD.HH THEN							//Показания выше уставки -> Формируем аварию
+				isHH := TRUE;
+			ELSIF mData.EngValue < (mData.RTD.HH - mData.RTD.HYST) THEN		//Показания ниже разности уставки и гистерезиса -> Снимаем аварию
+				isHH := FALSE;
+			ELSE
+				isHH := (mData.Status.State.ActiveAlarm = eAlarmType.HH);	//Удерживаем промежуточное значение
+			END_IF
+		END_IF
+	(*ВПУ, если активна*)
+		IF mData.RTD.RDD.enUseH THEN
+			IF mData.EngValue >= mData.RTD.H THEN
+				isH	:= TRUE;
+			ELSIF mData.EngValue < (mData.RTD.H - mData.RTD.HYST) THEN
+				isH	:= FALSE;
+			ELSE
+				isH	:= (mData.Status.State.ActiveAlarm = eAlarmType.H);
+			END_IF
+		END_IF
+	(*НПУ, если активна*)
+		IF mData.RTD.RDD.enUseL THEN
+			IF mData.EngValue <= mData.RTD.L THEN
+				isL	:= TRUE;
+			ELSIF mData.EngValue > (mData.RTD.L + mData.RTD.HYST) THEN
+				isL := FALSE;
+			ELSE
+				isL	:= (mData.Status.State.ActiveAlarm = eAlarmType.L);
+			END_IF
+		END_IF
+	(*НАУ, если активна*)
+		IF mData.RTD.RDD.enUseLL THEN
+			IF mData.EngValue <= mData.RTD.LL THEN
+				isLL	:= TRUE;
+			ELSIF mData.EngValue > (mData.RTD.LL + mData.RTD.HYST) THEN
+				isLL := FALSE;
+			ELSE
+				isLL	:= (mData.Status.State.ActiveAlarm = eAlarmType.LL);
+			END_IF
+		END_IF
+
+(*Реализуем задержку возврата значени*)
+	isActiveAlarm	:= isHH OR isH OR isL OR isLL;
+	IF isActiveAlarm THEN
+		IF mData.RTD.RDD.enDelay THEN
+			mData.RTD.RDD.alarmTimer	:= mData.RTD.RDD.alarmTimer + SysInfo.CycleTime;
+		END_IF
+	ELSE
+		mData.RTD.RDD.alarmTimer := 0;
+	END_IF
+	
+(*Возвращаем результат*)
+	IF NOT mData.RTD.RDD.enDelay OR (mData.RTD.RDD.alarmTimer >= mData.RTD.TD*1000) OR (mData.Status.MemoryBranch.Alarm <> eAlarmType.No) THEN
+		IF isHH THEN
+			CheckAlarms := eAlarmType.HH;
+			RETURN;
+		ELSIF isLL THEN
+			CheckAlarms := eAlarmType.LL;
+			RETURN;
+		ELSIF isH THEN
+			CheckAlarms := eAlarmType.H;
+			RETURN;
+		ELSIF isL THEN
+			CheckAlarms := eAlarmType.L;
+			RETURN;
+		END_IF
+	END_IF

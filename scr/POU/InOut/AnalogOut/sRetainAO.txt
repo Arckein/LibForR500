@@ -1,0 +1,13 @@
+TYPE sRetainAO :
+STRUCT
+	XMin	: REAL;	//Нижняя граница эл.шкалы
+	XMax	: REAL;	//Верхняя граница эл.шкалы
+
+	ScaleType	: eScaleType;	//Тип шкалы
+	YMin		: REAL;			//Нижняя граница инж.шкалы
+	YMax		: REAL;			//Верхняя граница инж.шкалы
+	Coeff		: REAL;			//Коэффициент для ручного шкалирования
+    
+	RDD	: sRedundancyAO;	//Компоненты резервирования
+END_STRUCT
+END_TYPE

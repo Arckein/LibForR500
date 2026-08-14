@@ -1,0 +1,14 @@
+TYPE sDataDI : STRUCT
+(*Входные значения*)
+	In				: BOOL;			//Вход с физического канала
+	ChStatus		: BOOL;			//Статус канала (TRUE - Ошибка)
+	ModuleStatus	: BOOL;			//Статус модуля (TRUE - Ошибка)
+	Command			: eCommand;		//Команды внешнего управления
+	RTD				: sRetainDI;	//Хранимые данные
+
+(*Выходные значения*)
+	RawValue	: BOOL;		//Значение в эл.величине (сырое)
+	EngValue	: BOOL;		//Значение в инж.величине (после инверсии и фильтра)
+	Status		: uSignalStatus;	//Комплексный статус (Режимы + Ошибки + Авария)
+END_STRUCT
+END_TYPE

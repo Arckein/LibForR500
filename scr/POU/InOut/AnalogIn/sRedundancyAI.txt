@@ -1,0 +1,24 @@
+TYPE sRedundancyAI :
+STRUCT
+	ImitVal	: REAL;	//Значение имитации
+
+	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	enImit		: BOOL;				//Имитация вкл/выкл
+	enFreezing	: BOOL;				//Заморозка последнего достоверного значения вкл/выкл
+	enFilter	: BOOL;				//Фильтрация входящей величины
+	enAlarmMode	: BOOL;				//Сигнализация вкл/выкл
+	enUseHH		: BOOL;				//Сигнализация по ВАУ вкл/выкл
+	enUseH		: BOOL;				//Сигнализация по ВПУ вкл/выкл
+	enUseL		: BOOL;				//Сигнализация по НПУ вкл/выкл
+	enUseLL		: BOOL;				//Сигнализация по НАУ вкл/выкл
+	enDelay		: BOOL;				//Задержка сработки сигнализации вкл/выкл
+	enCutOff	: BOOL;				//Мертвая зона вкл/выкл
+	enRepair	: bool;				//Режим ремонт
+	
+(*Внутренняя память*)
+	freezingIn	: REAL;	//Промежуточное значение для режима заморозки
+	filteredIn  : REAL;	//Промежуточное значение после фильтрации
+	isFirstPass : BOOL;	//Первый цикл фильтрации значения
+	alarmTimer  : REAL;	//Текущее значение таймера для сигнализаций
+END_STRUCT
+END_TYPE

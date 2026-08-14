@@ -1,0 +1,49 @@
+FUNCTION_BLOCK Valve
+VAR_INPUT
+	SysInfo			: sSystemInfo;		//Информация о ПЛК
+	InOutManager	: iInOutManager;	//Интерфейс входов-выходов
+END_VAR
+VAR_IN_OUT
+	Data	: sDataValve;	//Контейнер данных
+	rData	: sRetainValve;	//Контейнер retain-данных
+END_VAR
+VAR_TEMP
+(*Внутренние переменные*)
+	MapStatus	: sMapValid;	//Структура достоверности индексов
+	targetOpen	: BOOL;			//Локальная команда "Открыть"
+	targetClose	: BOOL;			//Локальная команда "Закрыть"
+END_VAR
+(*Синхронизация памяти*)
+	SyncMemory();
+(*Проверка индексации*)
+	MapStatus	:= Mapping(Data);
+	(*Собираем ошибку датчиков*)
+		Data.Status.State.ErrSensors	:= NOT (MapStatus.InputMapValid OR MapStatus.ProtectMapValid OR MapStatus.OutputManValid)	//По недостоверности индексов
+										OR ((Data.pOpenedLS <> 0) AND (Data.pOpenedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Открыта"
+										OR ((Data.pClosedLS <> 0) AND (Data.pClosedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Закрыта"
+										OR ((Data.pKeyOfLCP <> 0) AND (Data.pKeyOfLCP^.Status.MemoryBranch.Errors <> 0))			//Неисправность сигнала "Ключ ПМУ"
+										OR ((Data.pPowerState <> 0) AND (Data.pPowerState^.Status.MemoryBranch.Errors <> 0))		//Неисправность сигнала "Питание опер.цепей"
+										OR ((Data.pOpenCMD <> 0) AND (Data.pOpenCMD^.Status.MemoryBranch.Errors <> 0))				//Неисправность пускателя "Открыть"
+										OR ((Data.pCloseCMD <> 0) AND (Data.pCloseCMD^.Status.MemoryBranch.Errors <> 0))			//Неисправность пускателя "Закрыть"
+										OR ((Data.pStopCMD <> 0) AND (Data.pStopCMD^.Status.MemoryBranch.Errors <> 0));				//Неисправность пускателя "Остановить"
+	(*Вызываем прерывание при наличии ошибки*)
+		IF Data.Status.State.ErrSensors THEN
+			RETURN;
+		END_IF
+(*Вычисляем конфигурацию по входам*)
+	Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (
+											pOpenedLS	:= Data.pOpenedLS, 
+											pClosedLS	:= Data.pClosedLS
+								);
+(*Вычисляем тип управления по выходам*)
+	Data.RTD.RDD.CommandType	:= ConfigRemote (
+											pOpenCMD	:= Data.pOpenCMD,
+											pCloseCMD	:= Data.pCloseCMD,
+											pStopCMD	:= data.pStopCMD
+								);
+(*Логика ключа ПМУ*)
+	fKeyOfLCP(
+			pKeyOfLCP	:= Data.pKeyOfLCP,
+ 			Command		:= Data.Command,
+ 			Status		:= Data.Status,
+ 	);

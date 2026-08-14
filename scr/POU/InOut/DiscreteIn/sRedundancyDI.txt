@@ -1,0 +1,17 @@
+TYPE sRedundancyDI :  
+STRUCT
+	ImitVal	: BOOL;	//Значение для режима имитации
+
+	enEnable	: BOOL := TRUE;	//Обработка включена  
+	enImit		: BOOL;			//Имитация включена  
+	enFilter	: BOOL;			//Фильтрация включена
+	enInvert	: BOOL;			//Инверсия сигнала включена
+	enAlarmMode	: BOOL;			//Сигнализация включена
+	enDelay		: BOOL;			//Задержка сигнализации включена 
+	enRepair	: BOOL;			//Режим ремонт
+	
+	filteredIn	: BOOL;	//Отфильтрованное значение
+	filterTimer	: REAL;	//Таймер для фильтрации
+	alarmTimer	: REAL;	//Таймер задержки сигнализации  
+END_STRUCT  
+END_TYPE

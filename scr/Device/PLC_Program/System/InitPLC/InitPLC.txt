@@ -1,0 +1,41 @@
+PROGRAM InitPLC
+VAR CONSTANT
+	Signature	: DWORD	:= 16#A5A5A5A5;
+END_VAR
+
+(*Сторожевой флаг для внешнего опроса (SCADA / HMI / Modbus)*)
+	System.WhatchDog	:= TRUE;
+
+(*Получаем время выполняемой задачи*)
+	System.SystemInfo.CycleTime	:= fCycleTime();	//Записываем время цикла задачи, в которой находится POU
+(*Получаем статусы резервной пары модулей CU*)
+	System.SystemInfo.Redmode 		:= PsRedundancy_OS.GetMode();
+	System.SystemInfo.RDD_Active	:= (System.SystemInfo.Redmode=PsRedundancy_OS.ACTIVE)
+										OR (System.SystemInfo.RedMode=PsRedundancy_OS.ACTIVE_STANDALONE);	//Формируем флаг для ведущего/автономного ПЛК
+	System.SystemInfo.RDD_Standby	:= (System.SystemInfo.Redmode=PsRedundancy_OS.STANDBY);	//Формируем флаг для ведомого ПЛК
+
+(*Первый цикл ПЛК*)
+	IF NOT System.SystemInfo.FirstScan THEN
+	(*Проверяем целостность retain-памяти*)
+		IF PersistentVars.SystemSignature <> Signature THEN
+		(*Первая загрузка проекта*)
+			System.SystemInfo.isInit		:= TRUE;
+			System.SystemInfo.isColdStart	:= FALSE;
+			PersistentVars.SystemSignature		:= Signature;
+			(*Инициализируем значения по умолчанию*)
+				InitAIParam();	//Для IO.AnalogIn
+				InitDIParam();	//Для IO.DiscreteIn
+				
+				InitAOParam();	//Для IO.AnalogOut
+				InitDOParam();	//Для IO.DiscreteOut
+		ELSE
+		(*Холодная прогрузка проекта*)
+			System.SystemInfo.isInit		:= FALSE;
+			System.SystemInfo.isColdStart	:= TRUE;
+		END_IF
+		System.SystemInfo.FirstScan	:= TRUE;
+(*Последующие циклы ПЛК*)
+	ELSE
+		System.SystemInfo.isInit		:= FALSE;
+		System.SystemInfo.isColdStart	:= FALSE;
+	END_IF

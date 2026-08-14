@@ -1,0 +1,7 @@
+TYPE sSignalMemory :
+STRUCT
+	Mode	: BYTE;	//Слово 1, байт 0 - "Режимы работы"
+	Errors	: BYTE;	//Слово 1, байт 1 - "Ошибки"
+	Alarm	: WORD;	//Слово 2 - "Сигнализации"
+END_STRUCT
+END_TYPE

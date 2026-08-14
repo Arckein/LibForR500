@@ -1,0 +1,22 @@
+METHOD ScaleValue : REAL
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+CASE mData.RTD.ScaleType OF
+    eScaleType.NaN:         
+        ScaleValue := localIn;
+    eScaleType.dLinear:      
+        ScaleValue := ((localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+    eScaleType.iLinear:      
+        ScaleValue := ((localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+    eScaleType.dQuadratic:   
+        ScaleValue := SQRT(LIMIT(0.0, (localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin), 1.0)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+    eScaleType.iQuadratic:   
+        ScaleValue := SQRT(LIMIT(0.0, (localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax), 1.0)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+    eScaleType.dExponential: 
+        ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin), 1.0), 2) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin);
+    eScaleType.iExponential: 
+        ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax), 1.0), 2) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin);
+    eScaleType.byCoeff:      
+        ScaleValue := localIn * mData.RTD.Coeff; 
+END_CASE

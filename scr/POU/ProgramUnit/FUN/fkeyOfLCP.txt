@@ -1,0 +1,40 @@
+FUNCTION fKeyOfLCP;
+VAR_INPUT
+	pKeyOfLCP	: POINTER TO sDataDI;	//Указатель на ключ ПМУ
+	Command		: eCommand;				//Команды внешнего управления
+END_VAR
+VAR_IN_OUT
+	Status	: uMechStatus;	//Статус ключа
+END_VAR
+(*Определяем тип ключа по указателю*)
+	IF pKeyOfLCP = 0 THEN
+		Status.State.KeyVirtual		:= TRUE;
+		Status.State.Local			:= TRUE;
+		status.State.Remote			:= FALSE;
+		Status.MemoryBranch.Errors	:= 0;
+	ELSIF pKeyOfLCP <> 0 THEN
+		Status.State.KeyVirtual	:= FALSE;
+		Status					:= pkeyOfLCP^.Status;
+	END_IF
+	
+(*Определяем состояние ключа по типу*)
+	IF Status.State.KeyVirtual THEN
+	(*Виртуальный ключ, управляется по внешней команде*)
+		CASE Command OF
+			eCommand.Remote	:
+				Status.State.Remote	:= TRUE;
+				Status.State.Local	:= FALSE;
+			eCommand.Local	:
+				Status.State.Remote	:= FALSE;
+				Status.State.Local	:= TRUE;
+		END_CASE
+	ELSE 
+	(*Физический ключ, управляется по состоянию канала*)
+		IF pKeyOfLCP^.EngValue AND (pKeyOfLCP^.Status.MemoryBranch.Errors = 0) THEN
+			Status.State.Remote	:= TRUE;
+			Status.State.Local	:= FALSE;
+		ELSE
+			Status.State.Remote	:= FALSE;
+			Status.State.Local	:= TRUE;
+		END_IF
+	END_IF

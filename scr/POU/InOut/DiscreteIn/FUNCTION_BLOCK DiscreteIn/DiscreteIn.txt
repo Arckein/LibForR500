@@ -1,0 +1,93 @@
+FUNCTION_BLOCK DiscreteIn
+VAR_INPUT
+	SysInfo	: sSystemInfo;	//Информация о ПЛК
+END_VAR
+VAR_IN_OUT
+	Data	: sDataDI;		//Контейнер данных
+	rData	: sRetainDI;	//Контейнер retain-данных
+END_VAR
+VAR
+	localIn	: BOOL;	//Буферизированное значение
+END_VAR
+(*Синхронизация памяти*)
+	SyncMemory();
+
+(*Буферизация входных данных*)
+	localIn			:= Data.In;
+	Data.RawValue	:= localIn;
+
+(*Обработка команд внешнего управления*)
+	CASE Data.Command OF
+		eCommand.Enable:
+			Data.RTD.RDD.enEnable		:= NOT Data.RTD.RDD.enEnable;
+		eCommand.Imit:
+			Data.RTD.RDD.enImit			:= NOT Data.RTD.RDD.enImit;
+		eCommand.Filter:
+			Data.RTD.RDD.enFilter		:= NOT Data.RTD.RDD.enFilter;
+		eCommand.AlarmMode:
+			Data.RTD.RDD.enAlarmMode	:= NOT Data.RTD.RDD.enAlarmMode;
+		eCommand.Delay:
+			Data.RTD.RDD.enDelay		:= NOT Data.RTD.RDD.enDelay;
+		eCommand.Invert:
+			Data.RTD.RDD.enInvert		:= NOT Data.RTD.RDD.enInvert;
+		eCommand.Repair:
+			Data.RTD.RDD.enRepair		:= NOT Data.RTD.RDD.enRepair;
+	END_CASE
+	Data.Command	:= eCommand.None;
+	(*Упаковка состояний режимов*)
+		Data.Status.State.Disabled	:= NOT Data.RTD.RDD.enEnable;
+		Data.Status.State.Imitation	:= Data.RTD.RDD.enImit;
+		Data.Status.State.Filter	:= Data.RTD.RDD.enFilter;
+		Data.Status.State.Invert	:= Data.RTD.RDD.enInvert;
+		Data.Status.State.AlarmMode	:= Data.RTD.RDD.enAlarmMode;
+		Data.Status.State.Repair	:= Data.RTD.RDD.enRepair;
+(*Основная логика - вкл*)
+	IF Data.RTD.RDD.enEnable THEN
+	(*Валидация*)
+		Validation(Data);
+	(*Имитация*)
+		IF Data.RTD.RDD.enImit THEN
+			Data.EngValue					:= Data.RTD.RDD.ImitVal;
+			Data.Status.MemoryBranch.Errors	:= 0;
+			(*Вычисляем сигнализацию*)
+				IF Data.RTD.RDD.enAlarmMode THEN
+					Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+				ELSE
+					Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
+				END_IF
+	(*Нормальная работа*)
+		ELSIF Data.Status.MemoryBranch.Errors = 0 THEN
+		(*Инверсия сигнала*)
+			IF Data.RTD.RDD.enInvert THEN 
+				localIn	:= NOT localIn; 
+			END_IF
+		(*Фильтрация*)
+			IF Data.RTD.RDD.enFilter THEN
+				localIn	:= ApplyFilter(Data);
+			ELSE
+				Data.RTD.RDD.filteredIn		:= localIn;
+				Data.RTD.RDD.filterTimer	:= 0.0;
+			END_IF
+		Data.EngValue	:= localIn;
+		(*Записываем значение для безударного перехода в Имитацию*)
+			Data.RTD.RDD.ImitVal	:= Data.EngValue;
+		(*Вычисление сигнализаций*)
+			IF Data.RTD.RDD.enAlarmMode AND NOT Data.RTD.RDD.enRepair THEN
+				Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+			ELSE
+				Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+				Data.RTD.RDD.alarmTimer			:= 0.0;
+			END_IF
+	(*Ошибка датчика*)
+		ELSE
+			Data.EngValue					:= FALSE;
+			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+			Data.RTD.RDD.alarmTimer			:= 0.0;
+		END_IF
+(*Основная логика - выкл*)
+	ELSE
+	Data.EngValue					:= FALSE;
+	Data.RTD.RDD.alarmTimer			:= 0.0;
+	Data.Status.MemoryBranch.Errors	:= 0;
+	Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+END_IF

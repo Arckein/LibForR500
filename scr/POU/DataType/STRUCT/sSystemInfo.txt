@@ -1,0 +1,18 @@
+TYPE sSystemInfo :
+STRUCT
+	CycleTime	: REAL:= 0.1;	//Время цикла шины (по умолчанию 100 мс)
+	RedMode		: INT;			//Текущий статус резервирования проекта
+	RDD_Active	: BOOL;			//Флаг резервирования "Ведущий"
+	RDD_Standby	: BOOL;			//Флаг резервирования "Ведомый"
+	
+	FirstScan	: BOOL	:= FALSE;	//Флаг "Первый опрос ПЛК"
+	isInit		: BOOL;				//Флаг "Первичная инициализация ПЛК"
+	isColdStart	: BOOL;				//Флаг "Холодный старт"
+	
+	SizeAI		: UINT;	//Размер массива AI
+	SizeDI		: UINT;	//размер массива DI
+	SizeAO		: UINT;	//размер массива AO
+	SizeDO		: UINT;	//размер массива DO
+	SizeValve	: UINT;	//размер массива Valve
+END_STRUCT
+END_TYPE

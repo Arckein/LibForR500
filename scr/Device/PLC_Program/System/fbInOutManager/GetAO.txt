@@ -1,0 +1,19 @@
+METHOD GetAO : POINTER TO sDataAO
+VAR_INPUT
+	(*Индекс из массива AO*)
+	ID	: UINT;
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;
+END_VAR
+IF ID = 0 THEN
+(*Элемент не используется*)
+	GetAO	:= 0;
+ELSIF ID > 0 AND ID <= SysInfo.SizeAO THEN
+(*Элемент используется и индекс корректен*)
+	GetAO	:= ADR(IO.AnalogOut[ID]);
+ELSE
+(*Элемент используется, но индекс не корректен*)
+	GetAO	:= 0;
+	isValid	:= FALSE;
+END_IF

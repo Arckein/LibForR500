@@ -1,0 +1,207 @@
+METHOD OutputDO : UINT
+VAR
+	newDO	: DiscreteOut;
+	lenDO	: UINT;
+END_VAR
+(*ReservDO1 - C1M6, ch1*)
+	IO.DiscreteOut[eDO.ReservDO1].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO1].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO1].ModuleStatus	:= C1M6HW;
+	C1M6ch.0									:= IO.DiscreteOut[eDO.ReservDO1].Out;
+
+(*ReservDO2 - C1M6, ch2*)
+	IO.DiscreteOut[eDO.ReservDO2].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO2].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO2].ModuleStatus	:= C1M6HW;
+	C1M6ch.1									:= IO.DiscreteOut[eDO.ReservDO2].Out;
+
+(*ReservDO3 - C1M6, ch3*)
+	IO.DiscreteOut[eDO.ReservDO3].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO3].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO3].ModuleStatus	:= C1M6HW;
+	C1M6ch.2									:= IO.DiscreteOut[eDO.ReservDO3].Out;
+
+(*ReservDO4 - C1M6, ch4*)
+	IO.DiscreteOut[eDO.ReservDO4].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO4].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO4].ModuleStatus	:= C1M6HW;
+	C1M6ch.3									:= IO.DiscreteOut[eDO.ReservDO4].Out;
+
+(*ReservDO5 - C1M6, ch5*)
+	IO.DiscreteOut[eDO.ReservDO5].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO5].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO5].ModuleStatus	:= C1M6HW;
+	C1M6ch.4									:= IO.DiscreteOut[eDO.ReservDO5].Out;
+
+(*ReservDO6 - C1M6, ch6*)
+	IO.DiscreteOut[eDO.ReservDO6].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO6].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO6].ModuleStatus	:= C1M6HW;
+	C1M6ch.5									:= IO.DiscreteOut[eDO.ReservDO6].Out;
+
+(*ReservDO7 - C1M6, ch7*)
+	IO.DiscreteOut[eDO.ReservDO7].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO7].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO7].ModuleStatus	:= C1M6HW;
+	C1M6ch.6									:= IO.DiscreteOut[eDO.ReservDO7].Out;
+
+(*ReservDO8 - C1M6, ch8*)
+	IO.DiscreteOut[eDO.ReservDO8].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO8].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO8].ModuleStatus	:= C1M6HW;
+	C1M6ch.7									:= IO.DiscreteOut[eDO.ReservDO8].Out;
+
+(*ReservDO9 - C1M6, ch9*)
+	IO.DiscreteOut[eDO.ReservDO9].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO9].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO9].ModuleStatus	:= C1M6HW;
+	C1M6ch.8									:= IO.DiscreteOut[eDO.ReservDO9].Out;
+
+(*ReservDO10 - C1M6, ch10*)
+	IO.DiscreteOut[eDO.ReservDO10].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO10].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO10].ModuleStatus	:= C1M6HW;
+	C1M6ch.9									:= IO.DiscreteOut[eDO.ReservDO10].Out;
+
+(*ReservDO11 - C1M6, ch11*)
+	IO.DiscreteOut[eDO.ReservDO11].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO11].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO11].ModuleStatus	:= C1M6HW;
+	C1M6ch.10									:= IO.DiscreteOut[eDO.ReservDO11].Out;
+
+(*ReservDO12 - C1M6, ch12*)
+	IO.DiscreteOut[eDO.ReservDO12].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO12].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO12].ModuleStatus	:= C1M6HW;
+	C1M6ch.11									:= IO.DiscreteOut[eDO.ReservDO12].Out;
+
+(*ReservDO13 - C1M6, ch13*)
+	IO.DiscreteOut[eDO.ReservDO13].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO13].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO13].ModuleStatus	:= C1M6HW;
+	C1M6ch.12									:= IO.DiscreteOut[eDO.ReservDO13].Out;
+
+(*ReservDO14 - C1M6, ch14*)
+	IO.DiscreteOut[eDO.ReservDO14].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO14].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO14].ModuleStatus	:= C1M6HW;
+	C1M6ch.13									:= IO.DiscreteOut[eDO.ReservDO14].Out;
+
+(*ReservDO15 - C1M6, ch15*)
+	IO.DiscreteOut[eDO.ReservDO15].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO15].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO15].ModuleStatus	:= C1M6HW;
+	C1M6ch.14									:= IO.DiscreteOut[eDO.ReservDO15].Out;
+
+(*ReservDO16 - C1M6, ch16*)
+	IO.DiscreteOut[eDO.ReservDO16].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO16].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO16].ModuleStatus	:= C1M6HW;
+	C1M6ch.15									:= IO.DiscreteOut[eDO.ReservDO16].Out;
+
+(*ReservDO17 - C1M6, ch17*)
+	IO.DiscreteOut[eDO.ReservDO17].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO17].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO17].ModuleStatus	:= C1M6HW;
+	C1M6ch.16									:= IO.DiscreteOut[eDO.ReservDO17].Out;
+
+(*ReservDO18 - C1M6, ch18*)
+	IO.DiscreteOut[eDO.ReservDO18].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO18].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO18].ModuleStatus	:= C1M6HW;
+	C1M6ch.17									:= IO.DiscreteOut[eDO.ReservDO18].Out;
+
+(*ReservDO19 - C1M6, ch19*)
+	IO.DiscreteOut[eDO.ReservDO19].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO19].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO19].ModuleStatus	:= C1M6HW;
+	C1M6ch.18									:= IO.DiscreteOut[eDO.ReservDO19].Out;
+
+(*ReservDO20 - C1M6, ch20*)
+	IO.DiscreteOut[eDO.ReservDO20].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO20].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO20].ModuleStatus	:= C1M6HW;
+	C1M6ch.19									:= IO.DiscreteOut[eDO.ReservDO20].Out;
+
+(*ReservDO21 - C1M6, ch21*)
+	IO.DiscreteOut[eDO.ReservDO21].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO21].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO21].ModuleStatus	:= C1M6HW;
+	C1M6ch.20									:= IO.DiscreteOut[eDO.ReservDO21].Out;
+
+(*ReservDO22 - C1M6, ch22*)
+	IO.DiscreteOut[eDO.ReservDO22].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO22].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO22].ModuleStatus	:= C1M6HW;
+	C1M6ch.21									:= IO.DiscreteOut[eDO.ReservDO22].Out;
+
+(*ReservDO23 - C1M6, ch23*)
+	IO.DiscreteOut[eDO.ReservDO23].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO23].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO23].ModuleStatus	:= C1M6HW;
+	C1M6ch.22									:= IO.DiscreteOut[eDO.ReservDO23].Out;
+
+(*ReservDO24 - C1M6, ch24*)
+	IO.DiscreteOut[eDO.ReservDO24].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO24].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO24].ModuleStatus	:= C1M6HW;
+	C1M6ch.23									:= IO.DiscreteOut[eDO.ReservDO24].Out;
+
+(*ReservDO25 - C1M6, ch25*)
+	IO.DiscreteOut[eDO.ReservDO25].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO25].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO25].ModuleStatus	:= C1M6HW;
+	C1M6ch.24									:= IO.DiscreteOut[eDO.ReservDO25].Out;
+
+(*ReservDO26 - C1M6, ch26*)
+	IO.DiscreteOut[eDO.ReservDO26].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO26].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO26].ModuleStatus	:= C1M6HW;
+	C1M6ch.25									:= IO.DiscreteOut[eDO.ReservDO26].Out;
+
+(*ReservDO27 - C1M6, ch27*)
+	IO.DiscreteOut[eDO.ReservDO27].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO27].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO27].ModuleStatus	:= C1M6HW;
+	C1M6ch.26									:= IO.DiscreteOut[eDO.ReservDO27].Out;
+
+(*ReservDO28 - C1M6, ch28*)
+	IO.DiscreteOut[eDO.ReservDO28].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO28].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO28].ModuleStatus	:= C1M6HW;
+	C1M6ch.27									:= IO.DiscreteOut[eDO.ReservDO28].Out;
+
+(*ReservDO29 - C1M6, ch29*)
+	IO.DiscreteOut[eDO.ReservDO29].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO29].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO29].ModuleStatus	:= C1M6HW;
+	C1M6ch.28									:= IO.DiscreteOut[eDO.ReservDO29].Out;
+
+(*ReservDO30 - C1M6, ch30*)
+	IO.DiscreteOut[eDO.ReservDO30].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO30].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO30].ModuleStatus	:= C1M6HW;
+	C1M6ch.29									:= IO.DiscreteOut[eDO.ReservDO30].Out;
+
+(*ReservDO31 - C1M6, ch31*)
+	IO.DiscreteOut[eDO.ReservDO31].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO31].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO31].ModuleStatus	:= C1M6HW;
+	C1M6ch.30									:= IO.DiscreteOut[eDO.ReservDO31].Out;
+
+(*ReservDO32 - C1M6, ch32*)
+	IO.DiscreteOut[eDO.ReservDO32].EngValue		:= FALSE;
+	IO.DiscreteOut[eDO.ReservDO32].ChStatus		:= (C1M6PS = 0);
+	IO.DiscreteOut[eDO.ReservDO32].ModuleStatus	:= C1M6HW;
+	C1M6ch.31									:= IO.DiscreteOut[eDO.ReservDO32].Out;
+	
+lenDO	:= SIZEOF (IO.DiscreteOut) / SIZEOF (IO.DiscreteOut[1]);
+FOR i	:= 1 TO lenDO DO
+	newDO (
+		SysInfo	:= System.SystemInfo,
+		Data	:= IO.DiscreteOut[i],
+		rData	:= PersistentVars.DiscreteOut_Retain[i]
+	);
+END_FOR
+
+OutputDO	:= lenDO;

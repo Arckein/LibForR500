@@ -1,0 +1,10 @@
+TYPE sRetainDI :  
+STRUCT
+	TF	: REAL;	//Время фильтрации (сек)
+	TD	: REAL;	//Задержка срабатывания сигнализации (сек)  
+
+	AlarmLevel	: BOOL;		//Уровень аварии: TRUE (NO контакт) или FALSE (NC контакт)  
+
+	RDD	: sRedundancyDI;	//Компонент резервирования 
+END_STRUCT  
+END_TYPE

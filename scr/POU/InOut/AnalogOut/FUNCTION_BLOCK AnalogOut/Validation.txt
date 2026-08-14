@@ -1,0 +1,28 @@
+METHOD Validation : eStatus
+VAR_IN_OUT
+	mData	: sDataAO;
+END_VAR
+mData.Status.MemoryBranch.Errors := 0;
+
+CASE mData.RTD.ScaleType OF
+	eScaleType.dLinear,
+	eScaleType.iLinear,
+	eScaleType.dQuadratic,
+	eScaleType.iQuadratic,
+	eScaleType.dExponential,
+	eScaleType.iExponential :
+							IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+								mData.Status.State.ConfigFault := TRUE;
+							END_IF
+	eScaleType.byCoeff :
+					IF mData.RTD.Coeff <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+						mData.Status.State.ConfigFault := TRUE;
+					END_IF
+	eScaleType.NaN :
+				IF (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+					mData.Status.State.ConfigFault := TRUE;
+				END_IF
+END_CASE
+
+mData.Status.State.ChFault		:= mData.ChStatus;
+mData.Status.State.ModuleFault	:= mData.ModuleStatus;

@@ -1,0 +1,16 @@
+METHOD ConfigRemote : eMechCmdType
+VAR_INPUT
+	pOpenCMD	: POINTER TO sDataDO;
+	pCloseCMD	: POINTER TO sDataDO;
+	pStopCMD	: POINTER TO sDataDO;
+END_VAR
+(*Если привязан физический "Стоп" - схема самоподхвата*)
+	IF pStopCMD <> 0 THEN
+		ConfigRemote	:= eMechCmdType.Pulse;
+(*Если привязаны физические "Открыть" и "Закрыть" - реверсивная схема*)
+	ELSIF (pOpenCMD <> 0) AND (pCloseCMD <> 0) THEN
+		ConfigRemote	:= eMechCmdType.HoldUntilFeedback;
+(*Если привязаны физическик "Открыть" или "Закрыть" - схема самовозврата*)
+	ELSE
+		ConfigRemote	:= eMechCmdType.HoldWhileActive;
+	END_IF

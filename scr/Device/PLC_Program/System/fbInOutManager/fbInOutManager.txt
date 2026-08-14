@@ -1,0 +1,4 @@
+FUNCTION_BLOCK fbInOutManager IMPLEMENTS iInOutManager
+VAR_INPUT
+	SysInfo	: sSystemInfo;
+END_VAR

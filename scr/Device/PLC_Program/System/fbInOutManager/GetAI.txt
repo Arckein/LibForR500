@@ -1,0 +1,19 @@
+METHOD GetAI : POINTER TO sDataAI
+VAR_INPUT
+	(*Индекс из массива AI*)
+	ID	: UINT;
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;
+END_VAR
+IF ID = 0 THEN
+(*Элемент не используется*)
+	GetAI	:= 0;
+ELSIF ID > 0 AND ID <= SysInfo.SizeAI THEN
+(*Элемент используется и индекс корректен*)
+	GetAI	:= ADR(IO.AnalogIn[ID]);
+ELSE
+(*Элемент используется, но индекс не корректен*)
+	GetAI	:= 0;
+	isValid	:= FALSE;
+END_IF

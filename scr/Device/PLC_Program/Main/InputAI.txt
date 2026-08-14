@@ -1,0 +1,80 @@
+METHOD InputAI : UINT
+VAR
+	newAI	: AnalogIn;
+	lenAI	: UINT;
+END_VAR
+IO.AnalogIn[eAI.ReservAI1].In			:= C1M3ch1.Value;
+IO.AnalogIn[eAI.ReservAI1].ChStatus		:= C1M3ch1.Status > 0;
+IO.AnalogIn[eAI.ReservAI1].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI2].In			:= C1M3ch2.Value;
+IO.AnalogIn[eAI.ReservAI2].ChStatus		:= C1M3ch2.Status > 0;
+IO.AnalogIn[eAI.ReservAI2].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI3].In			:= C1M3ch3.Value;
+IO.AnalogIn[eAI.ReservAI3].ChStatus		:= C1M3ch3.Status > 0;
+IO.AnalogIn[eAI.ReservAI3].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI4].In			:= C1M3ch4.Value;
+IO.AnalogIn[eAI.ReservAI4].ChStatus		:= C1M3ch4.Status > 0;
+IO.AnalogIn[eAI.ReservAI4].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI5].In			:= C1M3ch5.Value;
+IO.AnalogIn[eAI.ReservAI5].ChStatus		:= C1M3ch5.Status > 0;
+IO.AnalogIn[eAI.ReservAI5].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI6].In			:= C1M3ch6.Value;
+IO.AnalogIn[eAI.ReservAI6].ChStatus		:= C1M3ch6.Status > 0;
+IO.AnalogIn[eAI.ReservAI6].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI7].In			:= C1M3ch7.Value;
+IO.AnalogIn[eAI.ReservAI7].ChStatus		:= C1M3ch7.Status > 0;
+IO.AnalogIn[eAI.ReservAI7].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI8].In			:= C1M3ch8.Value;
+IO.AnalogIn[eAI.ReservAI8].ChStatus		:= C1M3ch8.Status > 0;
+IO.AnalogIn[eAI.ReservAI8].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI9].In			:= C1M3ch9.Value;
+IO.AnalogIn[eAI.ReservAI9].ChStatus		:= C1M3ch9.Status > 0;
+IO.AnalogIn[eAI.ReservAI9].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI10].In				:= C1M3ch10.Value;
+IO.AnalogIn[eAI.ReservAI10].ChStatus		:= C1M3ch10.Status > 0;
+IO.AnalogIn[eAI.ReservAI10].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI11].In				:= C1M3ch11.Value;
+IO.AnalogIn[eAI.ReservAI11].ChStatus		:= C1M3ch11.Status > 0;
+IO.AnalogIn[eAI.ReservAI11].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI12].In				:= C1M3ch12.Value;
+IO.AnalogIn[eAI.ReservAI12].ChStatus		:= C1M3ch12.Status > 0;
+IO.AnalogIn[eAI.ReservAI12].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI13].In				:= C1M3ch13.Value;
+IO.AnalogIn[eAI.ReservAI13].ChStatus		:= C1M3ch13.Status > 0;
+IO.AnalogIn[eAI.ReservAI13].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI14].In				:= C1M3ch14.Value;
+IO.AnalogIn[eAI.ReservAI14].ChStatus		:= C1M3ch14.Status > 0;
+IO.AnalogIn[eAI.ReservAI14].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI15].In				:= C1M3ch15.Value;
+IO.AnalogIn[eAI.ReservAI15].ChStatus		:= C1M3ch15.Status > 0;
+IO.AnalogIn[eAI.ReservAI15].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+IO.AnalogIn[eAI.ReservAI16].In				:= C1M3ch16.Value;
+IO.AnalogIn[eAI.ReservAI16].ChStatus		:= C1M3ch16.Status > 0;
+IO.AnalogIn[eAI.ReservAI16].ModuleStatus	:= C1M3PS > 0 OR C1M3HW;
+
+
+lenAI	:= SIZEOF (IO.AnalogIn) / SIZEOF (IO.AnalogIn[1]);
+FOR i	:= 1 TO lenAI DO
+	newAI (
+		SysInfo	:= System.SystemInfo,
+		Data	:= IO.AnalogIn[i],
+		rData	:= PersistentVars.AnalogIn_Retain[i]
+	);
+END_FOR
+
+InputAI	:= lenAI;

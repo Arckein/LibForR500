@@ -1,0 +1,22 @@
+METHOD CheckAlarms : eAlarmType
+VAR
+END_VAR
+VAR_IN_OUT
+	mData	: sDataDI;
+END_VAR
+CheckAlarms	:= eAlarmType.No;
+
+IF mData.EngValue = mData.RTD.AlarmLevel THEN
+	IF mData.RTD.RDD.enDelay THEN
+		mData.RTD.RDD.alarmTimer := mData.RTD.RDD.alarmTimer + SysInfo.CycleTime;
+		IF  mData.RTD.RDD.alarmTimer >= (mData.RTD.TD * 1000) THEN
+			CheckAlarms := eAlarmType.Yes;
+		END_IF
+	ELSE
+		CheckAlarms 				:= eAlarmType.Yes;
+		mData.RTD.RDD.alarmTimer	:= 0.0;
+	END_IF
+ELSE
+	CheckAlarms 				:= eAlarmType.No;
+	mData.RTD.RDD.alarmTimer	:= 0.0;
+END_IF

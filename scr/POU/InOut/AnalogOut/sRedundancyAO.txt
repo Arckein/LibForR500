@@ -1,0 +1,9 @@
+TYPE sRedundancyAO :
+STRUCT
+	ImitVal	: REAL;	// Значение имитации
+
+	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	enImit		: BOOL;				//Имитация вкл/выкл
+	enRepair	: bool;
+END_STRUCT
+END_TYPE

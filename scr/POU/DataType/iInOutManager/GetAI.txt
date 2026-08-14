@@ -1,0 +1,7 @@
+METHOD GetAI : POINTER TO sDataAI
+VAR_INPUT
+	ID	: UINT;	//Индекс из массива AI
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;	//Флаг корректной привязки
+END_VAR

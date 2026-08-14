@@ -1,0 +1,22 @@
+METHOD ApplyFilter : REAL
+VAR
+	Alpha : REAL;
+END_VAR
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+IF mData.RTD.TF <= 0.001 THEN
+    ApplyFilter := localIn;
+    mData.RTD.RDD.isFirstPass := TRUE; 
+    RETURN;
+END_IF
+
+IF mData.RTD.RDD.isFirstPass THEN
+    mData.RTD.RDD.filteredIn  := localIn;
+    mData.RTD.RDD.isFirstPass := FALSE;
+END_IF
+
+Alpha := SysInfo.CycleTime / (mData.RTD.TF*1000 + SysInfo.CycleTime);
+mData.RTD.RDD.filteredIn := mData.RTD.RDD.filteredIn + Alpha * (localIn - mData.RTD.RDD.filteredIn);
+
+ApplyFilter := mData.RTD.RDD.filteredIn;

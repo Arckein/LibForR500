@@ -1,0 +1,8 @@
+METHOD Validation
+VAR_IN_OUT
+	mData	: sDataDI;
+END_VAR
+(*Сбрасываем стек*)
+	mData.Status.MemoryBranch.Errors	:= 0;
+	mData.Status.State.ModuleFault		:= mData.ModuleStatus;
+	mData.Status.State.ChFault			:= mData.ChStatus;

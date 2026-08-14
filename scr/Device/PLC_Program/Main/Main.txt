@@ -1,0 +1,13 @@
+PROGRAM Main
+VAR
+	i	: UINT;
+END_VAR
+InitPLC();
+
+System.SystemInfo.SizeAI	:= InputAI();
+System.SystemInfo.SizeDI	:= InputDI();
+
+System.SystemInfo.SizeValve	:= ProcessingValve();
+
+System.SystemInfo.SizeAO	:= OutputAO();
+System.SystemInfo.SizeDO	:= OutputDO();

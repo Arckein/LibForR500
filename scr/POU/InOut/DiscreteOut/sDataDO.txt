@@ -1,0 +1,14 @@
+TYPE sDataDO :
+STRUCT
+(*Входные значения*)
+	EngValue		: BOOL;			//Команда от логики управления
+	ChStatus		: BOOL;			//Ошибка канала (TRUE - Ошибка)
+	ModuleStatus	: BOOL;			//Ошибка модуля (TRUE - Ошибка)
+	Command			: eCommand;		//Команды с HMI
+	RTD				: sRetainDO;	//Хранимые данные
+    
+(*Выходные значения*)
+	Out		: BOOL;				//Итоговый сырой сигнал на физический канал
+	Status	: uSignalStatus;	//Текущий статус достоверности
+END_STRUCT
+END_TYPE

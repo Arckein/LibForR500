@@ -1,0 +1,5 @@
+TYPE sRetainDO :
+STRUCT
+	RDD	: sRedundancyDO;	//Компонент резервирования
+END_STRUCT
+END_TYPE

@@ -1,0 +1,7 @@
+METHOD GetDI : POINTER TO sDataDI
+VAR_INPUT
+	ID	: UINT;	//Индекс из массива DI
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;	//Флаг корректной привязки
+END_VAR

@@ -1,0 +1,13 @@
+{attribute 'qualified_only'}
+VAR_GLOBAL PERSISTENT RETAIN
+	SystemSignature		: DWORD;
+	
+	AnalogIn_Retain		: ARRAY [1..16] OF sRetainAI;
+	DiscreteIn_Retain	: ARRAY [1..32] OF sRetainDI;
+	
+	AnalogOut_Retain	: ARRAY [1..8] OF sRetainAO;
+	DiscreteOut_Retain	: ARRAY [1..32] OF sRetainDO;
+	
+	
+	Valve_Retain		: array [1..2] of sRetainValve;
+END_VAR

@@ -1,0 +1,13 @@
+TYPE sRedundancyValve :
+STRUCT
+	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	
+	FeedbackConfig	: eMechFeedbackConfig;	//Конфигурация входов
+	CommandType		: eMechCmdType;			//Конфигурация пускателей
+	State			: eMechFsmStep;			//Состояние конечного автомата
+	
+	tMoveAct	: REAL;	//Текущее значение таймера контроля старта
+	tStrokeAct	: REAL;	//Текущее значение таймера полного хода
+	tPulseAct	: REAL;	//Текущее значение таймера импульса
+END_STRUCT
+END_TYPE

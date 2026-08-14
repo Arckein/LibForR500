@@ -1,0 +1,7 @@
+TYPE sMapValid :
+STRUCT
+	InputMapValid	: BOOL;	//Достоверность индексов входов
+	ProtectMapValid	: BOOL;	//Достоверность индексов Блокировка и ПАЗ
+	OutputManValid	: BOOL;	//Достоверность индексов выходов
+END_STRUCT
+END_TYPE

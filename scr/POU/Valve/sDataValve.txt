@@ -1,0 +1,19 @@
+TYPE sDataValve :
+STRUCT
+(*Входные значения*)
+	pOpenedLS		: POINTER TO sDataDI;	//Указатель на КВ "Открыта"
+	pClosedLS		: POINTER TO sDataDI;	//Указатель на КВ "Закрыта"
+	pKeyOfLCP		: POINTER TO sDataDI;	//Указатель на ключ ПМУ
+	pPowerState		: POINTER TO sDataDI;	//Указатель на полевое питание
+	//pLock			: POINTER TO sDataLock;	//Указатель на блокировку
+	//pEPS			: pointer to sDataEPS;	//Указатель на ПАЗ
+	Command			: eCommand;				//Команды внешнего управления
+	RTD				: sRetainValve;			//Хранимые данные
+	
+(*Выходные значения*)
+	pOpenCMD	: POINTER TO sDataDO;	//Указатель на команду "Открыть"
+	pCloseCMD	: POINTER TO sDataDO;	//Указатель на команду "Закрыть"
+	pStopCMD	: POINTER TO sDataDO;	//Указатель на команду "Стоп"
+	Status		: uMechStatus;			//Статус задвижки
+END_STRUCT
+END_TYPE

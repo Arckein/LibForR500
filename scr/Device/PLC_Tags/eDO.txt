@@ -1,0 +1,38 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eDO :
+(
+	ReservDO1	:= 1,
+	ReservDO2	:= 2,
+	ReservDO3	:= 3,
+	ReservDO4	:= 4,
+	ReservDO5	:= 5,
+	ReservDO6	:= 6,
+	ReservDO7	:= 7,
+	ReservDO8	:= 8,
+	ReservDO9	:= 9,
+	ReservDO10	:= 10,
+	ReservDO11	:= 11,
+	ReservDO12	:= 12,
+	ReservDO13	:= 13,
+	ReservDO14	:= 14,
+	ReservDO15	:= 15,
+	ReservDO16	:= 16,
+	ReservDO17	:= 17,
+	ReservDO18	:= 18,
+	ReservDO19	:= 19,
+	ReservDO20	:= 20,
+	ReservDO21	:= 21,
+	ReservDO22	:= 22,
+	ReservDO23	:= 23,
+	ReservDO24	:= 24,
+	ReservDO25	:= 25,
+	ReservDO26	:= 26,
+	ReservDO27	:= 27,
+	ReservDO28	:= 28,
+	ReservDO29	:= 29,
+	ReservDO30	:= 30,
+	ReservDO31	:= 31,
+	ReservDO32	:= 32
+)	UINT;
+END_TYPE

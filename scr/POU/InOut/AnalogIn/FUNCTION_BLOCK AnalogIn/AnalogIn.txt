@@ -1,0 +1,121 @@
+FUNCTION_BLOCK AnalogIn
+VAR_INPUT
+	SysInfo	: sSystemInfo;	//Информация о ПЛК
+END_VAR
+VAR_IN_OUT
+	Data	: sDataAI;		//Контейнер данных
+	rData	: sRetainAI;	//Контейнер retain-данных
+END_VAR
+VAR
+	localIn		: REAL;			//Буферизированное значение "Вход с канала"
+END_VAR
+(*Синхронизация памяти*)
+	SyncMemory();
+(*Буферизация входных данных*)
+	localIn			:= Data.In;
+	Data.RawValue	:= localIn;
+(*Обработка команд внешнего управления*)
+	CASE Data.Command OF
+		eCommand.Enable:
+			Data.RTD.RDD.enEnable		:= NOT Data.RTD.RDD.enEnable;
+		eCommand.Imit:
+			Data.RTD.RDD.enImit			:= NOT Data.RTD.RDD.enImit;
+		eCommand.Freezing:
+			Data.RTD.RDD.enFreezing		:= NOT Data.RTD.RDD.enFreezing;
+		eCommand.Filter:
+			Data.RTD.RDD.enFilter		:= NOT Data.RTD.RDD.enFilter;
+		eCommand.AlarmMode:
+			Data.RTD.RDD.enAlarmMode	:= NOT Data.RTD.RDD.enAlarmMode;
+		eCommand.UseHH:
+			Data.RTD.RDD.enUseHH		:= NOT Data.RTD.RDD.enUseHH;
+		eCommand.UseH:
+			Data.RTD.RDD.enUseH			:= NOT Data.RTD.RDD.enUseH;
+		eCommand.UseL:
+			Data.RTD.RDD.enUseL			:= NOT Data.RTD.RDD.enUseL;
+		eCommand.UseLL:
+			Data.RTD.RDD.enUseLL		:= NOT Data.RTD.RDD.enUseLL;
+		eCommand.Delay:
+			Data.RTD.RDD.enDelay		:= NOT Data.RTD.RDD.enDelay;
+		eCommand.CutOff:
+			Data.RTD.RDD.enCutOff		:= NOT Data.RTD.RDD.enCutOff;
+		eCommand.Repair:
+			Data.RTD.RDD.enRepair		:= NOT Data.RTD.RDD.enRepair;
+	END_CASE
+	Data.Command	:= eCommand.None;
+	(*Упаковка состяоний режимов*)
+	Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
+	Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;
+	Data.Status.State.Freezing		:= Data.RTD.RDD.enFreezing;
+	Data.Status.State.Filter		:= Data.RTD.RDD.enFilter;
+	Data.Status.State.CutOff		:= Data.RTD.RDD.enCutOff;
+	Data.Status.State.AlarmMode		:= Data.RTD.RDD.enAlarmMode;
+	Data.Status.State.Repair		:= Data.RTD.RDD.enRepair;
+(*Основная логика - вкл*)
+	IF Data.RTD.RDD.enEnable THEN
+    (*Валидация*)
+		Validation	(Data);
+	(*Имитация*)
+		IF Data.RTD.RDD.enImit THEN
+			Data.EngValue					:= Data.RTD.RDD.ImitVal;
+			Data.Status.MemoryBranch.Errors	:= 0;
+			(*Вычисляем сигнализации*)
+				IF Data.RTD.RDD.enAlarmMode THEN
+					Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+				ELSE
+					Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
+				END_IF
+	(*Нормальная работа*)
+		ELSIF Data.Status.MemoryBranch.Errors = 0 THEN
+		(*Режим Фильтрации*)
+			IF Data.RTD.RDD.enFilter THEN
+				localIn := ApplyFilter(Data);
+			ELSE
+				Data.RTD.RDD.isFirstPass := TRUE;
+			END_IF
+		(*Обновляем буфер для "Заморозки"*)
+			IF Data.RTD.RDD.enFreezing THEN
+				Data.RTD.RDD.freezingIn := localIn;
+			END_IF
+		(*Шкалируем значение*)
+			Data.EngValue := ScaleValue(Data);
+		(*Проверяем мертвую зону*)
+			IF Data.RTD.RDD.enCutOff THEN
+				IF ABS(Data.EngValue - Data.RTD.YMin) < Data.RTD.Threshold THEN
+					Data.EngValue := Data.RTD.YMin;
+				END_IF
+			END_IF
+		(*Записываем значение для безударного перехода в Имитацию*)
+			Data.RTD.RDD.ImitVal := Data.EngValue;
+		(*Вычисление сигнализаций*)
+			IF Data.RTD.RDD.enAlarmMode THEN
+				Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+			ELSE
+				Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
+			END_IF
+    (*Ошибки датчика*)
+		ELSE
+		(*Реализация режима заморозки*)
+			IF Data.RTD.RDD.enFreezing AND NOT Data.Status.State.ConfigFault THEN
+				localIn			:= Data.RTD.RDD.freezingIn;
+				Data.EngValue	:= ScaleValue(mData := Data);
+				(*Проверяем мертвую зону*)
+					IF Data.RTD.RDD.enCutOff THEN
+						IF ABS(Data.EngValue - Data.RTD.YMin) < Data.RTD.Threshold THEN
+							Data.EngValue	:= Data.RTD.YMin;
+						END_IF
+					END_IF
+			ELSE
+				Data.EngValue	:= Data.RTD.YMin;
+			END_IF
+        (*Сбрасываем сигнализацию*)
+			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+			Data.RTD.RDD.alarmTimer			:= 0.0;
+		END_IF
+(*Основная логика - выкл*)
+	ELSE
+		Data.EngValue					:= 0.0;
+		Data.RTD.RDD.isFirstPass		:= TRUE;
+		Data.RTD.RDD.alarmTimer			:= 0.0;
+		Data.Status.MemoryBranch.Errors := 0;
+		Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+	END_IF

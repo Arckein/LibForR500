@@ -1,0 +1,19 @@
+METHOD GetDO : POINTER TO sDataDO
+VAR_INPUT
+	(*Индекс из массива DO*)
+	ID	: UINT;
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;
+END_VAR
+IF ID = 0 THEN
+(*Элемент не используется*)
+	GetDO	:= 0;
+ELSIF ID > 0 AND ID <= SysInfo.SizeDO THEN
+(*Элемент используется и индекс корректен*)
+	GetDO	:= ADR(IO.DiscreteOut[ID]);
+ELSE
+(*Элемент используется, но индекс не корректен*)
+	GetDO	:= 0;
+	isValid	:= FALSE;
+END_IF

@@ -1,0 +1,7 @@
+METHOD GetDO : POINTER TO sDataDO
+VAR_INPUT
+	ID	: UINT;	//Индекс из массива DO
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;	//Флаг корректной привязки
+END_VAR

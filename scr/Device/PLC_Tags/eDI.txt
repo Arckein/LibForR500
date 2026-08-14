@@ -1,0 +1,38 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eDI :
+(
+	ReservDI1	:= 1,
+	ReservDI2	:= 2,
+	ReservDI3	:= 3,
+	ReservDI4	:= 4,
+	ReservDI5	:= 5,
+	ReservDI6	:= 6,
+	ReservDI7	:= 7,
+	ReservDI8	:= 8,
+	ReservDI9	:= 9,
+	ReservDI10	:= 10,
+	ReservDI11	:= 11,
+	ReservDI12	:= 12,
+	ReservDI13	:= 13,
+	ReservDI14	:= 14,
+	ReservDI15	:= 15,
+	ReservDI16	:= 16,
+	ReservDI17	:= 17,
+	ReservDI18	:= 18,
+	ReservDI19	:= 19,
+	ReservDI20	:= 20,
+	ReservDI21	:= 21,
+	ReservDI22	:= 22,
+	ReservDI23	:= 23,
+	ReservDI24	:= 24,
+	ReservDI25	:= 25,
+	ReservDI26	:= 26,
+	ReservDI27	:= 27,
+	ReservDI28	:= 28,
+	ReservDI29	:= 29,
+	ReservDI30	:= 30,
+	ReservDI31	:= 31,
+	ReservDI32	:= 32
+)	UINT;
+END_TYPE

@@ -1,0 +1,26 @@
+TYPE sRetainValve :
+STRUCT
+(*Входные значения*)
+	idOpenedLS		: UINT;	//ID КВ "Открыта"
+	idClosedLS		: UINT;	//ID КВ "Закрыта"
+	idKeyOfLCP		: UINT;	//ID Ключ ПМУ
+	idPowerState	: UINT;	//ID Полевое питание
+	idLock			: UINT;	//ID в ФБ блокировок
+	idEps			: UINT; // ID в ФБ ПАЗ
+
+(*Конфигурация*)
+	SafeState		: eMechSafeState;		//Безопасное состояние
+	dlOpened		: REAL;					//Номинальное время открытия (секунды)
+	dlClosed		: REAL;					//Номинальное время закрытия (секунды)
+	dlMoveToOpen	: REAL;					//Время страгивания на открытие (секунды)
+	dlMoveToClose	: REAL;					//Время страгивания на закрытие (секунды)
+	dlPulse			: REAL;					//Длина импульса (секунды)
+
+(*Выходные значения*)
+	idOpenCMD	: UINT;	//ID Пускатель "Открыть"
+	idCloseCMD	: UINT;	//ID Пускатель "Закрыть"
+	idStopCMD	: UINT;	//ID Пускатель "Стоп"
+
+	RDD	: sRedundancyValve;	//Компоненты резервирования
+END_STRUCT
+END_TYPE

@@ -1,0 +1,63 @@
+METHOD OutputAO : UINT
+VAR
+	newAO	: AnalogOut;
+	lenAO	: UINT;
+END_VAR
+(*ReservAO1	- C1M5, ch1*)
+	IO.AnalogOut[eAO.ReservAO1].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO1].ChStatus		:= C1M5ST.0 OR C1M5ST.8;
+	IO.AnalogOut[eAO.ReservAO1].ModuleStatus	:= C1M5HW;
+	C1M5ch1										:= IO.AnalogOut[eAO.ReservAO1].Out;
+	
+(*ReservAO2	- C1M5, ch2*)
+	IO.AnalogOut[eAO.ReservAO2].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO2].ChStatus		:= C1M5ST.0 OR C1M5ST.9;
+	IO.AnalogOut[eAO.ReservAO2].ModuleStatus	:= C1M5HW;
+	C1M5ch2										:= IO.AnalogOut[eAO.ReservAO2].Out;
+
+(*ReservAO3	- C1M5, ch3*)
+	IO.AnalogOut[eAO.ReservAO3].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO3].ChStatus		:= C1M5ST.0 OR C1M5ST.10;
+	IO.AnalogOut[eAO.ReservAO3].ModuleStatus	:= C1M5HW;
+	C1M5ch3										:= IO.AnalogOut[eAO.ReservAO3].Out;
+	
+(*ReservAO4	- C1M5, ch4*)
+	IO.AnalogOut[eAO.ReservAO4].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO4].ChStatus		:= C1M5ST.0 OR C1M5ST.11;
+	IO.AnalogOut[eAO.ReservAO4].ModuleStatus	:= C1M5HW;
+	C1M5ch4										:= IO.AnalogOut[eAO.ReservAO4].Out;
+	
+(*ReservAO5	- C1M5, ch5*)
+	IO.AnalogOut[eAO.ReservAO5].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO5].ChStatus		:= C1M5ST.0 OR C1M5ST.12;
+	IO.AnalogOut[eAO.ReservAO5].ModuleStatus	:= C1M5HW;
+	C1M5ch5										:= IO.AnalogOut[eAO.ReservAO5].Out;
+	
+(*ReservAO6	- C1M5, ch6*)
+	IO.AnalogOut[eAO.ReservAO6].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO6].ChStatus		:= C1M5ST.0 OR C1M5ST.13;
+	IO.AnalogOut[eAO.ReservAO6].ModuleStatus	:= C1M5HW;
+	C1M5ch6										:= IO.AnalogOut[eAO.ReservAO6].Out;
+	
+(*ReservAO7	- C1M5, ch7*)
+	IO.AnalogOut[eAO.ReservAO7].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO7].ChStatus		:= C1M5ST.0 OR C1M5ST.14;
+	IO.AnalogOut[eAO.ReservAO7].ModuleStatus	:= C1M5HW;
+	C1M5ch7										:= IO.AnalogOut[eAO.ReservAO7].Out;
+	
+(*ReservAO8	- C1M5, ch8*)
+	IO.AnalogOut[eAO.ReservAO8].EngValue		:= 0;
+	IO.AnalogOut[eAO.ReservAO8].ChStatus		:= C1M5ST.0 OR C1M5ST.15;
+	IO.AnalogOut[eAO.ReservAO8].ModuleStatus	:= C1M5HW;
+	C1M5ch8										:= IO.AnalogOut[eAO.ReservAO8].Out;
+	
+lenAO	:= SIZEOF (IO.AnalogOut) / SIZEOF (IO.AnalogOut[1]);
+FOR i	:= 1 TO lenAO DO
+	newAO (
+		SysInfo	:= System.SystemInfo,
+		Data	:= IO.AnalogOut[i],
+		rData	:= PersistentVars.AnalogOut_Retain[i]
+	);
+END_FOR
+
+OutputAO	:= lenAO;

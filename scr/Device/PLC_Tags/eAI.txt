@@ -1,0 +1,22 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eAI :
+(
+	ReservAI1	:= 1,
+	ReservAI2	:= 2,
+	ReservAI3	:= 3,
+	ReservAI4	:= 4,
+	ReservAI5	:= 5,
+	ReservAI6	:= 6,
+	ReservAI7	:= 7,
+	ReservAI8	:= 8,
+	ReservAI9	:= 9,
+	ReservAI10	:= 10,
+	ReservAI11	:= 11,
+	ReservAI12	:= 12,
+	ReservAI13	:= 13,
+	ReservAI14	:= 14,
+	ReservAI15	:= 15,
+	ReservAI16	:= 16
+)	UINT;
+END_TYPE
