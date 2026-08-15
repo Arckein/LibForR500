@@ -5,9 +5,9 @@ STRUCT
 	pClosedLS		: POINTER TO sDataDI;	//Указатель на КВ "Закрыта"
 	pKeyOfLCP		: POINTER TO sDataDI;	//Указатель на ключ ПМУ
 	pPowerState		: POINTER TO sDataDI;	//Указатель на полевое питание
-	//pLock			: POINTER TO sDataLock;	//Указатель на блокировку
-	//pEPS			: pointer to sDataEPS;	//Указатель на ПАЗ
+	pLock			: POINTER TO sDataLock;	//Указатель на блокировку
 	Command			: eCommand;				//Команды внешнего управления
+	Source			: eCommandSource;		//Источник команды
 	RTD				: sRetainValve;			//Хранимые данные
 	
 (*Выходные значения*)

@@ -1,0 +1,12 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eCommandSouce :
+(
+	None	:= 0,	//Нет команды
+	SCADA	:= 1,	//Уровень оператора / диспетчера
+	HMI		:= 2,	//Уровень аппаратчика
+	Auto	:= 3,	//Автоматика
+	Lock	:= 4,	//Блокировка
+	EPS		:= 5 	//ПАЗ
+) UINT;
+END_TYPE

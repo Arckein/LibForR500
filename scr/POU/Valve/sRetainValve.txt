@@ -6,7 +6,6 @@ STRUCT
 	idKeyOfLCP		: UINT;	//ID Ключ ПМУ
 	idPowerState	: UINT;	//ID Полевое питание
 	idLock			: UINT;	//ID в ФБ блокировок
-	idEps			: UINT; // ID в ФБ ПАЗ
 
 (*Конфигурация*)
 	SafeState		: eMechSafeState;		//Безопасное состояние

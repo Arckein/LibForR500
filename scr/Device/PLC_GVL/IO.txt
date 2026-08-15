@@ -1,12 +1,14 @@
+(*База данных сигналов InOut*)
+
 {attribute 'qualified_only'}
-VAR_GLOBAL PERSISTENT RETAIN
-	SystemSignature		: DWORD;
+VAR_GLOBAL
+	AnalogIn	: ARRAY [1..16] OF sDataAI;
+	DiscreteIn	: ARRAY [1..32] OF sDataDI;
 	
-	AnalogIn_Retain		: ARRAY [1..16] OF sRetainAI;
-	DiscreteIn_Retain	: ARRAY [1..32] OF sRetainDI;
+	AnalogOut	: ARRAY [1..8] OF sDataAO;
+	DiscreteOut	: ARRAY [1..32] OF sDataDO;
 	
-	AnalogOut_Retain	: ARRAY [1..8] OF sRetainAO;
-	DiscreteOut_Retain	: ARRAY [1..32] OF sRetainDO;
+	Lock		: ARRAY [1..2] OF sDataLock;
 	
-	Valve_Retain		: ARRAY [1..2] OF sRetainValve;
+	Valve		: ARRAY [1..2] OF sDataValve;
 END_VAR

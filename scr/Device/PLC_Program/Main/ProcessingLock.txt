@@ -1,0 +1,12 @@
+IO.Lock[eLock.ForXV1].Item[1].Condition	:= (IO.AnalogIn[eAI.ReservAI16].Status.MemoryBranch.Errors <> 0)
+										OR (IO.AnalogIn[eAI.ReservAI16].Status.State.ActiveAlarm = eAlarmType.HH);
+
+lenLock	:= SIZEOF(IO.Lock) / SIZEOF(IO.Lock[1]);
+FOR i	:= 1 TO lenLock DO
+	newLock (
+		SysInfo	:= System.SystemInfo,
+		Data	:= IO.Lock[i],
+		rData	:= PersistentVars.Lock_Retain[i]
+		);
+END_FOR
+ProcessingLock	:= lenLock;

@@ -31,16 +31,9 @@ END_VAR
 			RETURN;
 		END_IF
 (*Вычисляем конфигурацию по входам*)
-	Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (
-											pOpenedLS	:= Data.pOpenedLS, 
-											pClosedLS	:= Data.pClosedLS
-								);
+	Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (Data);
 (*Вычисляем тип управления по выходам*)
-	Data.RTD.RDD.CommandType	:= ConfigRemote (
-											pOpenCMD	:= Data.pOpenCMD,
-											pCloseCMD	:= Data.pCloseCMD,
-											pStopCMD	:= data.pStopCMD
-								);
+	Data.RTD.RDD.CommandType	:= ConfigRemote (Data);
 (*Логика ключа ПМУ*)
 	fKeyOfLCP(
 			pKeyOfLCP	:= Data.pKeyOfLCP,

@@ -2,39 +2,19 @@ FOR i := 1 TO 16 DO
 	IF SysInfo.isInit THEN
 	(*Первая загрузка проекта.
 	Блок забирает данные из PLC_Init. в соответствии с номером элемента массива и формирует из них retain-данные*)
-		rData.Item[i].TD 				:= Data.Item[i].RTD.TD;
-		rData.Item[i].RDD.enEnable 		:= Data.Item[i].RTD.RDD.enEnable;
-		rData.Item[i].RDD.fbDelay.ET	:= Data.Item[i].RTD.RDD.fbDelay.ET;
-		rData.Item[i].RDD.fbDelay.IN	:= Data.Item[i].RTD.RDD.fbDelay.IN;
-		rData.Item[i].RDD.fbDelay.PT	:= Data.Item[i].RTD.RDD.fbDelay.PT;
-		rData.Item[i].RDD.fbDelay.Q		:= Data.Item[i].RTD.RDD.fbDelay.Q;
+		rData.Item[i]	:= Data.Item[i].RTD;
 	ELSIF SysInfo.isColdStart THEN
 	(*Холодная прогрузка или запуск после отключения питания.
 	Блок забирает данные из retain-памяти*)
-		Data.Item[i].RTD.TD				:= rData.Item[i].TD;
-		Data.Item[i].RTD.RDD.enEnable	:= rData.Item[i].RDD.enEnable;
-		Data.Item[i].RTD.RDD.fbDelay.ET	:= rData.Item[i].RDD.fbDelay.ET;
-		Data.Item[i].RTD.RDD.fbDelay.IN	:= rData.Item[i].RDD.fbDelay.IN;
-		Data.Item[i].RTD.RDD.fbDelay.PT	:= rData.Item[i].RDD.fbDelay.PT;
-		Data.Item[i].RTD.RDD.fbDelay.Q	:= rData.Item[i].RDD.fbDelay.Q;
+		Data.Item[i].RTD	:= rData.Item[i];
 	ELSE
 	(*Рабочий цикл ПЛК*)	
 		IF SysInfo.RDD_Active THEN
 		(*На активной обоновляем retain-данные*)
-			rData.Item[i].TD 					:= Data.Item[i].RTD.TD;
-			rData.Item[i].RDD.enEnable 			:= Data.Item[i].RTD.RDD.enEnable;
-			rData.Item[i].RDD.fbDelay.ET		:= Data.Item[i].RTD.RDD.fbDelay.ET;
-			rData.Item[i].RDD.fbDelay.IN		:= Data.Item[i].RTD.RDD.fbDelay.IN;
-			rData.Item[i].RDD.fbDelay.PT		:= Data.Item[i].RTD.RDD.fbDelay.PT;
-			rData.Item[i].RDD.fbDelay.Q			:= Data.Item[i].RTD.RDD.fbDelay.Q;
+			rData.Item[i]	:= Data.Item[i].RTD;
 		ELSIF SysInfo.RDD_Standby THEN
 		(*На ведомой обновляем данные самого ФБ*)
-			Data.Item[i].RTD.TD				:= rData.Item[i].TD;
-			Data.Item[i].RTD.RDD.enEnable	:= rData.Item[i].RDD.enEnable;
-			Data.Item[i].RTD.RDD.fbDelay.ET	:= rData.Item[i].RDD.fbDelay.ET;
-			Data.Item[i].RTD.RDD.fbDelay.IN	:= rData.Item[i].RDD.fbDelay.IN;
-			Data.Item[i].RTD.RDD.fbDelay.PT	:= rData.Item[i].RDD.fbDelay.PT;
-			Data.Item[i].RTD.RDD.fbDelay.Q	:= rData.Item[i].RDD.fbDelay.Q;
+			Data.Item[i].RTD	:= rData.Item[i];
 		END_IF
 	END_IF
 END_FOR

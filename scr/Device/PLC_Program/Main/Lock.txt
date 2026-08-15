@@ -1,8 +1,0 @@
-METHOD Lock : UINT
-VAR
-	newLock	: Lock;
-	lenLock	: UINT;
-END_VAR
-IO.Lock[eLock.ForXV1].Item[1].Condition	:= (IO.AnalogIn[eAI.ReservAI16].Status.MemoryBranch.Errors <> 0)
-										OR (IO.AnalogIn[eAI.ReservAI16].Status.State.ActiveAlarm = eAlarmType.HH);
-

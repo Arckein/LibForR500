@@ -1,16 +1,15 @@
 METHOD ConfigFeedback : eMechFeedbackConfig
-VAR_INPUT
-	pOpenedLS	: POINTER TO sDataDI;
-	pClosedLS	: POINTER TO sDataDI;
+VAR_IN_OUT
+	mData		: sDataValve;
 END_VAR
 (*Конфигурация "Два концевика"*)
-	IF (pOpenedLS <> 0) AND (pClosedLS <> 0) THEN
+	IF (mData.pOpenedLS <> 0) AND (mData.pClosedLS <> 0) THEN
 		ConfigFeedback	:= eMechFeedbackConfig.DualFeedback;
 (*Конфигурация "Только КВ "Открыта"*)
-	ELSIF (pOpenedLS <> 0) AND (pClosedLS = 0) THEN
+	ELSIF (mData.pOpenedLS <> 0) AND (mData.pClosedLS = 0) THEN
 		ConfigFeedback	:= eMechFeedbackConfig.ActiveFeedbackOnly;
 (*Конфигурация "Только КВ "Закрыта"*)
-	ELSIF (pOpenedLS = 0) AND (pClosedLS <> 0) THEN
+	ELSIF (mData.pOpenedLS = 0) AND (mData.pClosedLS <> 0) THEN
 		ConfigFeedback	:= eMechFeedbackConfig.InactiveFeedbackOnly;
 (*Конфигурация "Без концевиков"*)
 	ELSE

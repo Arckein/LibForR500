@@ -22,7 +22,6 @@ END_IF
 
 (*Читаем защиты и блокировки*)
 	mData.pLock	:= InOutManager.GetDI(mData.RTD.idLock, ProtectMapValid);	//ФБ "Блокировка"
-	mData.pEPS	:= InOutManager.GetDI(mData.RTD.idEps, ProtectMapValid);	//ФБ "ПАЗ"
 
 (*Читаем контур управления*)
 	mData.pOpenCMD	:= InOutManager.GetDO(mData.RTD.idOpenCMD, OutputManValid);		//Пускатель "Открыть"
