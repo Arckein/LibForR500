@@ -3,13 +3,13 @@ STRUCT
 (*Слово 1. Режимы и состояния*)
 	(*Байт 0. Режимы управления*)
 		Auto		: BIT;	//Бит 0 - Автоматический режим
-		Manual		: BIT;	//Бит 1 - Ручной режим
-		Local		: BIT;	//Бит 2 - Местный
-		Remote		: BIT;	//Бит 3 - Дистанционный
-		KeyVirtual	: BIT;	//Бит 4 - Тип ключа
-		Repair		: BIT;	//Бит 5 - Ремонт
-		ReservMode6	: BIT;	//Бит 6 - Резерв
-		ReservMode7	: BIT;	//Бит 7 - Резерв
+		Local		: BIT;	//Бит 1 - Местный
+		Remote		: BIT;	//Бит 2 - Дистанционный
+		KeyVirtual	: BIT;	//Бит 3 - Тип ключа
+		Repair		: BIT;	//Бит 4 - Ремонт
+		ReservMode6	: BIT;	//Бит 5 - Резерв
+		ReservMode7	: BIT;	//Бит 6 - Резерв
+		ReservMode8	: BIT;	//Бит 7 - Резерв
 	(*Байт 1. Текущие состояния*)
 		Opened			: BIT;	//Бит 0 - Открыт
 		Closed			: BIT;	//Бит 1 - Закрыт

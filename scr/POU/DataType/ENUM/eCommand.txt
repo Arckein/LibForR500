@@ -8,22 +8,22 @@ TYPE eCommand :
 	Repair	:= 3,	//Вкл/Выкл режим "Ремонт"
 	Reset	:= 4,	//Сброс/Квитирование
 	Stop	:= 5,	//Универсальная команда "Стоп"
-	Auto	:= 6,	//Перевод в режим "Автомат"
-	Manual	:= 7,	//Перевод в режим "Ручной"
 	(*Виртуальный ПМУ*)
-		Local	:= 8,	//Перевод в режим "Местный" (виртуальный ключ)
-		Remote	:= 9,	//Перевод в режим "Дистанционный" (виртуальный ключ)
+		Local	:= 6,	//Перевод в режим "Местный" (виртуальный ключ)
+		Remote	:= 7,	//Перевод в режим "Дистанционный" (виртуальный ключ)
 	(*Резерв*)
-		ReservUniversalCMD1		:= 10,
-		ReservUniversalCMD2		:= 11,
-		ReservUniversalCMD3		:= 12,
-		ReservUniversalCMD4		:= 13,
-		ReservUniversalCMD5		:= 14,
-		ReservUniversalCMD6		:= 15,
-		ReservUniversalCMD7		:= 16,
-		ReservUniversalCMD8		:= 17,
-		ReservUniversalCMD9		:= 18,
-		ReservUniversalCMD10	:= 19,
+		ReservUniversalCMD1		:= 8,
+		ReservUniversalCMD2		:= 6,
+		ReservUniversalCMD3		:= 10,
+		ReservUniversalCMD4		:= 11,
+		ReservUniversalCMD5		:= 12,
+		ReservUniversalCMD6		:= 13,
+		ReservUniversalCMD7		:= 14,
+		ReservUniversalCMD8		:= 15,
+		ReservUniversalCMD9		:= 16,
+		ReservUniversalCMD10	:= 17,
+		ReservUniversalCMD11	:= 18,
+		ReservUniversalCMD12	:= 19,
 		
 (*Групповые команды*)
 	Filter		:= 20,	//Вкл/Выкл режим "Фильтрация"
