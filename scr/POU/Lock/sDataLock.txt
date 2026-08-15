@@ -2,9 +2,11 @@ TYPE sDataLock :
 STRUCT
 (*Входные значения*)
 	Item	: ARRAY [1..16] OF sDataLockItem;
+	Command	: eCommand;
 	
 (*Выходные значения*)
-	isLockActivate		: BOOL;	//Блокировка активации (открытия / запуска)
-	isLockDeactivate	: BOOL;	//Блокировка деактивации (закрытия / остановки)
+	isLockActivate		: BOOL;			//Блокировка активации (открытия / запуска)
+	isLockDeactivate	: BOOL;			//Блокировка деактивации (закрытия / остановки)
+	FirstIndex			: INT;			//Первопричина
 END_STRUCT
 END_TYPE

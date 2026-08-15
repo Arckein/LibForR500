@@ -33,6 +33,7 @@ FOR i := 1 TO 16 DO
 					ELSE
 						Data.Item[i].TimeLeft	:= 0;
 					END_IF
+			
 		(*Блокировка отключена*)
 			ELSE
 				Data.Item[i].Trip	:= FALSE;	//Сбрасываем сработку
@@ -42,12 +43,22 @@ FOR i := 1 TO 16 DO
 			END_IF
 END_FOR
 
-(*Маршрутизация результирующего воздействия*)
+(*Агрегация*)
+	(*Первопричина*)
+		IF Data.Item[i].Trip THEN;
+			Data.FirstIndex	:= TO_INT(i);
+		END_IF
 	(*Запрет активации*)
+		Data.isLockActivate	:= FALSE;
 		FOR i := 1 TO 8 DO
-			Data.isLockActivate	:= Data.Item[i].Trip;
+			IF Data.Item[i].Trip THEN
+				Data.isLockActivate	:= TRUE;	
+			END_IF
 		END_FOR
 	(*Запрет деактивации*)
+		Data.isLockDeactivate	:= FALSE;
 		FOR i := 9 TO 16 DO
-			Data.isLockDeactivate	:= Data.Item[i].Trip;
+			IF Data.Item[i].Trip THEN
+				Data.isLockDeactivate	:= TRUE;	
+			END_IF
 		END_FOR
