@@ -7,6 +7,8 @@ InitPLC();
 System.SystemInfo.SizeAI	:= InputAI();
 System.SystemInfo.SizeDI	:= InputDI();
 
+System.SystemInfo.SizeLock	:= Lock();
+
 System.SystemInfo.SizeValve	:= ProcessingValve();
 
 System.SystemInfo.SizeAO	:= OutputAO();

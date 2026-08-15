@@ -1,0 +1,6 @@
+TYPE eLock :
+(
+	ForXV1	:= 1,
+	ForXV2	:= 2
+);
+END_TYPE
