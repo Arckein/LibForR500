@@ -14,7 +14,6 @@ END_VAR
 		Status.MemoryBranch.Errors	:= 0;
 	ELSIF pKeyOfLCP <> 0 THEN
 		Status.State.KeyVirtual	:= FALSE;
-		Status					:= pkeyOfLCP^.Status;
 	END_IF
 	
 (*Определяем состояние ключа по типу*)
