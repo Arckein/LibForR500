@@ -1,0 +1,10 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eMechTarget :
+(
+	None		:= 0,	//Ожидание
+	Activate	:= 1,	//Открытие / запуск
+	Deactivate	:= 2,	//Закрытие / остановка
+	Stop		:= 3	//Стоп
+);
+END_TYPE

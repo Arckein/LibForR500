@@ -13,7 +13,7 @@ TYPE eCommand :
 		Remote	:= 7,	//Перевод в режим "Дистанционный" (виртуальный ключ)
 	(*Резерв*)
 		ReservUniversalCMD1		:= 8,
-		ReservUniversalCMD2		:= 6,
+		ReservUniversalCMD2		:= 9,
 		ReservUniversalCMD3		:= 10,
 		ReservUniversalCMD4		:= 11,
 		ReservUniversalCMD5		:= 12,

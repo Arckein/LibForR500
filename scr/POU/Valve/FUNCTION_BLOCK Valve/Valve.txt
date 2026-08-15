@@ -9,9 +9,8 @@ VAR_IN_OUT
 END_VAR
 VAR_TEMP
 (*Внутренние переменные*)
-	MapStatus	: sMapValid;	//Структура достоверности индексов
-	targetOpen	: BOOL;			//Локальная команда "Открыть"
-	targetClose	: BOOL;			//Локальная команда "Закрыть"
+	MapStatus		: sMapValid;	//Структура достоверности индексов
+	ActionStatus	: eMechTarget;
 END_VAR
 (*Синхронизация памяти*)
 	SyncMemory();
@@ -40,3 +39,18 @@ END_VAR
  			Command		:= Data.Command,
  			Status		:= Data.Status,
  	);
+(*Обработка команд управления*)
+	(*Сбрасываем в местном режиме*)
+		IF Data.Status.State.Local THEN
+			Data.Command	:= eCommand.None;
+			Data.Source		:= eCommandSource.None;
+	(*Формируем таргет управления*)
+		ELSIF Data.Status.State.Remote THEN
+			ActionStatus := Management(Data);
+		END_IF
+		
+		
+		
+(*Сброс интерфейса управления*)
+	Data.Command	:= eCommand.None;
+	Data.Source		:= eCommandSource.None;

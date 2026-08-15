@@ -1,0 +1,62 @@
+METHOD Management : eMechTarget
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+(*Сброс стэка*)
+	Management	:= eMechTarget.None;
+(*Читаем pLock*)
+	IF mData.pLock <> 0 THEN
+		mData.Status.State.lkOpen	:= mData.pLock^.isLockActivate;
+		mData.Status.State.lkClose	:= mData.pLock^.isLockDeactivate;
+	ELSE
+		mData.Status.State.lkOpen	:= FALSE;
+		mData.Status.State.lkClose	:= FALSE; 
+	END_IF
+	(*Реализуем "Блокировку активации"*)
+		IF mData.Status.State.lkOpen AND Management = eMechTarget.Activate THEN
+			Management	:= eMechTarget.None;
+		END_IF
+	(*Реализуем "Блокировку деактивации"*)
+		IF mData.Status.State.lkClose AND Management = eMechTarget.Deactivate THEN
+			Management	:= eMechTarget.None;
+		END_IF
+(*Приоритет 0 - ПАЗ. Формируем таргет на безопасное состояние*)
+	IF mData.Source = eCommandSource.EPS OR mData.Status.State.EPSActive THEN
+		mData.Status.State.EPSActive	:= TRUE;
+		(*Безопасно-открытое состояние*)
+			IF mData.RTD.SafeState = eMechSafeState.Activate THEN
+				Management	:= eMechTarget.Activate;
+		(*Безопасно-закрытое состояние*)
+			ELSIF mData.RTD.SafeState = eMechSafeState.Deactivate THEN
+				Management	:= eMechTarget.Deactivate;
+			END_IF
+		RETURN;
+	END_IF
+	
+(*Приоритет 1 - АвтоматикаР*)
+	IF mData.Source = eCommandSource.Auto THEN
+		mData.Status.State.Auto	:= TRUE;
+		IF mData.Command = eCommand.Stop THEN
+			Management	:= eMechTarget.Stop;
+		ELSIF mData.Command = eCommand.Open THEN
+			Management	:= eMechtarget.Activate;
+		ELSIF mData.Command = eCommand.Close THEN
+			Management	:= eMechtarget.Deactivate;
+		END_IF
+(*Приоритет 2 - Ручное управление*)
+	ELSIF mData.Source = eCommandSource.SCADA OR mData.Source = eCommandSource.HMI THEN
+		IF NOT mData.Status.State.Auto THEN
+			IF mData.Command = eCommand.Stop THEN
+				Management	:= eMechTarget.Stop;
+			ELSIF mData.Command = eCommand.Open THEN
+				Management	:= eMechtarget.Activate;
+			ELSIF mData.Command = eCommand.Close THEN
+				Management	:= eMechtarget.Deactivate;
+			END_IF
+		END_IF
+	END_IF
+(*Квитирование*)
+	IF mData.Command = eCommand.Reset THEN
+		mData.Status.State.EPSActive	:= FALSE;
+		mData.Command					:= eCommand.None;
+	END_IF
