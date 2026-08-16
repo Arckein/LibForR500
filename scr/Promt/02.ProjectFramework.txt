@@ -1,0 +1,50 @@
+// ==========================================
+// POU: Valve (Функциональный блок дискретной задвижки/клапана)
+// ==========================================
+FUNCTION_BLOCK Valve
+VAR_INPUT
+	SysInfo			: sSystemInfo;		//Информация о ПЛК
+	InOutManager	: iInOutManager;	//Интерфейс входов-выходов
+END_VAR
+VAR_IN_OUT
+	Data	: sDataValve;	//Контейнер данных
+	rData	: sRetainValve;	//Контейнер retain-данных
+END_VAR
+VAR_TEMP
+(*Внутренние переменные*)
+	MapStatus		: sMapValid;	//Структура достоверности индексов
+	ActionStatus	: eMechTarget;
+END_VAR
+
+// ------------------------------------------
+// Методы POU Valve (Только объявления)
+// ------------------------------------------
+
+METHOD ConfigFeedback : eMechFeedbackConfig
+VAR_IN_OUT
+	mData		: sDataValve;
+END_VAR
+
+METHOD ConfigRemote : eMechCmdType
+VAR_IN_OUT
+	mData		: sDataValve;
+END_VAR
+
+METHOD Management : eMechTarget
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+
+METHOD Mapping : sMapValid
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+VAR
+	InputMapValid	: BOOL	:= TRUE;
+	ProtectMapValid	: BOOL	:= TRUE;
+	OutputManValid	: BOOL	:= TRUE;
+END_VAR
+
+ACTION SyncMemory
+// (Предполагается, что переменных VAR_INPUT/VAR_IN_OUT нет, 
+// так как метод обращается к Data/rData из родительского FB)
