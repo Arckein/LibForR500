@@ -4,6 +4,7 @@ VAR_IN_OUT
 END_VAR
 (*Сброс стэка*)
 	Management	:= eMechTarget.None;
+
 (*Читаем pLock*)
 	IF mData.pLock <> 0 THEN
 		mData.Status.State.lkOpen	:= mData.pLock^.isLockActivate;
@@ -12,14 +13,13 @@ END_VAR
 		mData.Status.State.lkOpen	:= FALSE;
 		mData.Status.State.lkClose	:= FALSE; 
 	END_IF
-	(*Реализуем "Блокировку активации"*)
-		IF mData.Status.State.lkOpen AND Management = eMechTarget.Activate THEN
-			Management	:= eMechTarget.None;
-		END_IF
-	(*Реализуем "Блокировку деактивации"*)
-		IF mData.Status.State.lkClose AND Management = eMechTarget.Deactivate THEN
-			Management	:= eMechTarget.None;
-		END_IF
+
+(*Квитирование*)
+	IF mData.Command = eCommand.Reset THEN
+		mData.Status.State.EPSActive	:= FALSE;
+		mData.Command					:= eCommand.None;
+	END_IF
+	
 (*Приоритет 0 - ПАЗ. Формируем таргет на безопасное состояние*)
 	IF mData.Source = eCommandSource.EPS OR mData.Status.State.EPSActive THEN
 		mData.Status.State.EPSActive	:= TRUE;
@@ -33,13 +33,13 @@ END_VAR
 		RETURN;
 	END_IF
 	
-(*Приоритет 1 - АвтоматикаР*)
+(*Приоритет 1 - Автоматика*)
 	IF mData.Source = eCommandSource.Auto THEN
 		mData.Status.State.Auto	:= TRUE;
 		IF mData.Command = eCommand.Stop THEN
 			Management	:= eMechTarget.Stop;
 		ELSIF mData.Command = eCommand.Open THEN
-			Management	:= eMechtarget.Activate;
+			Management	:= eMechTarget.Activate;
 		ELSIF mData.Command = eCommand.Close THEN
 			Management	:= eMechtarget.Deactivate;
 		END_IF
@@ -49,14 +49,19 @@ END_VAR
 			IF mData.Command = eCommand.Stop THEN
 				Management	:= eMechTarget.Stop;
 			ELSIF mData.Command = eCommand.Open THEN
-				Management	:= eMechtarget.Activate;
+				Management	:= eMechTarget.Activate;
 			ELSIF mData.Command = eCommand.Close THEN
-				Management	:= eMechtarget.Deactivate;
+				Management	:= eMechTarget.Deactivate;
 			END_IF
 		END_IF
 	END_IF
-(*Квитирование*)
-	IF mData.Command = eCommand.Reset THEN
-		mData.Status.State.EPSActive	:= FALSE;
-		mData.Command					:= eCommand.None;
-	END_IF
+
+(*Наложение технологических защит*)	
+	(*"Блокировку активации"*)
+		IF mData.Status.State.lkOpen AND Management = eMechTarget.Activate THEN
+			Management	:= eMechTarget.None;
+		END_IF
+	(*"Блокировку деактивации"*)
+		IF mData.Status.State.lkClose AND Management = eMechTarget.Deactivate THEN
+			Management	:= eMechTarget.None;
+		END_IF

@@ -48,3 +48,15 @@ END_VAR
 ACTION SyncMemory
 // (Предполагается, что переменных VAR_INPUT/VAR_IN_OUT нет, 
 // так как метод обращается к Data/rData из родительского FB)
+
+METHOD StateMachine
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+VAR_INPUT
+	ActionStatus	: eMechTarget;
+END_VAR
+VAR
+	isOpened	: BOOL;
+	isClosed	: BOOL;
+END_VAR

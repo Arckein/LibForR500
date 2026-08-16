@@ -1,0 +1,161 @@
+METHOD StateMachine
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+VAR_INPUT
+	ActionStatus	: eMechTarget;
+END_VAR
+VAR
+	isOpened	: BOOL;
+	isClosed	: BOOL;
+END_VAR
+(*Чтение состяония физических датчиков*)
+	(*КВ "Открыта"*)
+		isOpened	:= FALSE;
+		IF mData.pOpenedLS <> 0 THEN
+			isOpened	:= mData.pOpenedLS^.EngValue;
+		END_IF
+	(*КВ "Закрыта"*)
+		isClosed	:= FALSE;
+		IF mData.pClosedLS <> 0 THEN
+			isClosed	:= mData.pClosedLS^.EngValue;
+		END_IF
+		
+(*Контроль логического противоречия концевиков*)
+	mData.Status.State.Unknown	:= isOpened AND isClosed;
+	
+(*Сброс ошибок*)
+	IF mData.Command = eCommand.Reset THEN
+		mData.Status.State.ErrStartOpen		:= FALSE;
+		mData.Status.State.ErrStartClose	:= FALSE;
+		mData.Status.State.ErrFullOpen		:= FALSE;
+		mData.Status.State.ErrFullClose		:= FALSE;
+		mData.Status.State.ErrUncmdStart	:= FALSE;
+		mData.Status.State.ErrUncmdStop		:= FALSE;
+	END_IF
+	
+(*Агрегация ошибок*)
+	mData.Status.State.Alarm	:= mData.Status.State.ErrStartOpen OR
+								mData.Status.State.ErrStartClose OR
+								mData.Status.State.ErrFullOpen OR
+								mData.Status.State.ErrFullClose OR
+								mData.Status.State.ErrUncmdStart OR
+								mData.Status.State.ErrUncmdStop OR
+								mData.Status.State.ErrSensors;
+							
+(*Кинематика состояний*)
+	CASE mData.RTD.RDD.State OF
+	(*Инициализация*)	eMechFsmStep.Init	:
+		(*Сброс таймеров*)
+			mData.RTD.RDD.tMoveAct		:= 0;
+			mData.RTD.RDD.tStrokeAct	:= 0;
+			mData.RTD.RDD.tPulseAct		:= 0;
+		(*Оценка физического положения*)
+			IF mData.Status.State.Unknown THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+			ELSIF isOpened THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Opened;
+			ELSIF isClosed THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Closed;
+			ELSE
+				mData.RTD.RDD.State	:= eMechFsmStep.Intermediate;
+			END_IF
+	(*Неизвестное положение*)	eMechFsmStep.Unknown	:
+		(*Делаем повторную инициализацию*)
+			IF NOT mData.Status.State.Unknown THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Init;
+			END_IF
+	(*Промежуточное положение*) eMechFsmStep.Intermediate	:
+		(*Оценка физического положения*)
+			IF mData.Status.State.Unknown THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+			ELSIF isOpened THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Opened;
+			ELSIF isClosed THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Closed;
+			END_IF
+		(*Движение*)
+			IF NOT mData.Status.State.Alarm THEN
+				IF ActionStatus = eMechTarget.Activate THEN
+					mData.RTD.RDD.tMoveAct 		:= 0;
+					mData.RTD.RDD.tStrokeAct	:= 0;
+					mData.RTD.RDD.State			:= eMechFsmStep.Opening;
+				ELSIF ActionStatus = eMechTarget.Deactivate THEN
+					mData.RTD.RDD.tMoveAct 		:= 0;
+					mData.RTD.RDD.tStrokeAct	:= 0;
+					mData.RTD.RDD.State			:= eMechFsmStep.Closing;
+				END_IF
+			END_IF
+	(*Открыта*)	eMechFsmStep.Opened	:
+		(*Контроль противоречия*)
+			IF mData.Status.State.Unknown THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+		(*Штатный сход по команде*)
+			ELSIF (ActionStatus = eMechTarget.Deactivate) AND NOT mData.Status.State.Alarm THEN
+				mData.RTD.RDD.tMoveAct 		:= 0;
+				mData.RTD.RDD.tStrokeAct	:= 0;
+				mData.RTD.RDD.State			:= eMechFsmStep.Closing;
+		(*Несанкционированный сход*)
+			ELSIF NOT isOpened THEN
+				mData.Status.State.ErrUncmdStop	:= TRUE;
+				mData.RTD.RDD.State				:= eMechFsmStep.Unknown;
+			END_IF
+	(*Закрыта*) eMechFsmStep.Closed	:
+		(*Контроль противоречия*)
+			IF mData.Status.State.Unknown THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+		(*Штатный сход по команде*)
+			ELSIF (ActionStatus = eMechTarget.Activate) AND NOT mData.Status.State.Alarm THEN
+				mData.RTD.RDD.tMoveAct 		:= 0;
+				mData.RTD.RDD.tStrokeAct	:= 0;
+				mData.RTD.RDD.State			:= eMechFsmStep.Opening;
+		(*Несанкционированный сход*)
+			ELSIF NOT isClosed THEN
+				mData.Status.State.ErrUncmdStart	:= TRUE;
+				mData.RTD.RDD.State					:= eMechFsmStep.Unknown;
+			END_IF
+	(*Открывается*)	eMechFsmStep.Opening	:
+		(*Реализуем контрольные таймера*)
+			mData.RTD.RDD.tMoveAct		:= mData.RTD.RDD.tMoveAct + SysInfo.CycleTime;
+			mdata.RTD.RDD.tStrokeAct	:= mdata.RTD.RDD.tStrokeAct + SysInfo.CycleTime;
+		(*Прерывание по аварии*)
+			IF mdata.Status.State.Alarm THEN
+				mdata.RTD.RDD.State	:= emechFsmStep.Unknown;
+		(*Штатный останов*)
+			ELSIF ActionStatus = eMechTarget.Stop THEN
+				mData.RTD.RDD.State	:= emechFsmStep.Intermediate;
+		(*Штатно достигли КВ "открыта"*)
+			ELSIF isOpened THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Opened;
+		(*Контроль начала движения*)
+			ELSIF (mData.RTD.dlMoveToOpen > 0) AND (mData.RTD.RDD.tMoveAct > mData.RTD.dlMoveToOpen) AND isClosed THEN
+				mData.Status.State.ErrStartOpen	:= TRUE;
+				mData.RTD.RDD.State	:= eMechfsmStep.Closed;
+		(*Контроль окончания движения*)
+			ELSIF (mData.RTD.dlOpened > 0) AND (mData.RTD.RDD.tStrokeAct > mData.RTD.dlOpened) AND NOT isOpened THEN
+				mData.Status.State.ErrFullOpen	:= TRUE;
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+			END_IF
+	(*Закрывается*)	eMechFsmStep.Closing	:
+		(*Реализуем контрольные таймера*)
+			mData.RTD.RDD.tMoveAct		:= mData.RTD.RDD.tMoveAct + SysInfo.CycleTime;
+			mdata.RTD.RDD.tStrokeAct	:= mdata.RTD.RDD.tStrokeAct + SysInfo.CycleTime;
+		(*Прерывание по аварии*)
+			IF mdata.Status.State.Alarm THEN
+				mdata.RTD.RDD.State	:= emechFsmStep.Unknown;
+		(*Штатный останов*)
+			ELSIF ActionStatus = eMechTarget.Stop THEN
+				mData.RTD.RDD.State	:= emechFsmStep.Intermediate;
+		(*Штатно достигли КВ "открыта"*)
+			ELSIF isClosed THEN
+				mData.RTD.RDD.State	:= eMechFsmStep.Closed;
+		(*Контроль начала движения*)
+			ELSIF (mData.RTD.dlMoveToOpen > 0) AND (mData.RTD.RDD.tMoveAct > mData.RTD.dlMoveToClose) AND isOpened THEN
+				mData.Status.State.ErrStartClose	:= TRUE;
+				mData.RTD.RDD.State	:= eMechfsmStep.Opened;
+		(*Контроль окончания движения*)
+			ELSIF (mData.RTD.dlClosed > 0) AND (mData.RTD.RDD.tStrokeAct > mData.RTD.dlClosed) AND NOT isClosed THEN
+				mData.Status.State.ErrFullClose	:= TRUE;
+				mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
+			END_IF
+	END_CASE
