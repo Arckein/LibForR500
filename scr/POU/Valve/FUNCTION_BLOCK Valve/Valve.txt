@@ -7,6 +7,9 @@ VAR_IN_OUT
 	Data	: sDataValve;	//Контейнер данных
 	rData	: sRetainValve;	//Контейнер retain-данных
 END_VAR
+VAR
+	i	: UINT;
+END_VAR
 VAR_TEMP
 (*Внутренние переменные*)
 	MapStatus		: sMapValid;	//Структура достоверности индексов
@@ -107,6 +110,13 @@ END_IF
 	Data.Status.State.Closing		:= (Data.RTD.RDD.State = eMechFsmStep.Closing);
 	Data.Status.State.Intermediate	:= (Data.RTD.RDD.State = eMechFsmStep.Intermediate);
 
-(*Сброс интерфейса управления*)
+(*Логирование и сброс интерфейса управления*)
+	IF Data.Command <> eCommand.None THEN
+		FOR i	:= 9 TO 1 BY -1 DO
+			Data.RTD.RDD.Logger[i+1]	:= Data.RTD.RDD.Logger[i];
+		END_FOR
+		Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+		Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+	END_IF
 	Data.Command	:= eCommand.None;
 	Data.Source		:= eCommandSource.None;

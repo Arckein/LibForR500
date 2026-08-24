@@ -10,5 +10,7 @@ STRUCT
 	tMoveAct	: REAL;	//Текущее значение таймера контроля старта
 	tStrokeAct	: REAL;	//Текущее значение таймера полного хода
 	tPulseAct	: REAL;	//Текущее значение таймера импульса
+	
+	Logger	: ARRAY [1..5] OF sCommandLog;
 END_STRUCT
 END_TYPE
