@@ -14,43 +14,99 @@ VAR_TEMP
 END_VAR
 (*Синхронизация памяти*)
 	SyncMemory();
-(*Проверка индексации*)
-	MapStatus	:= Mapping(Data);
-	(*Собираем ошибку датчиков*)
-		Data.Status.State.ErrSensors	:= NOT (MapStatus.InputMapValid OR MapStatus.ProtectMapValid OR MapStatus.OutputManValid)	//По недостоверности индексов
-										OR ((Data.pOpenedLS <> 0) AND (Data.pOpenedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Открыта"
-										OR ((Data.pClosedLS <> 0) AND (Data.pClosedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Закрыта"
-										OR ((Data.pKeyOfLCP <> 0) AND (Data.pKeyOfLCP^.Status.MemoryBranch.Errors <> 0))			//Неисправность сигнала "Ключ ПМУ"
-										OR ((Data.pPowerState <> 0) AND (Data.pPowerState^.Status.MemoryBranch.Errors <> 0))		//Неисправность сигнала "Питание опер.цепей"
-										OR ((Data.pOpenCMD <> 0) AND (Data.pOpenCMD^.Status.MemoryBranch.Errors <> 0))				//Неисправность пускателя "Открыть"
-										OR ((Data.pCloseCMD <> 0) AND (Data.pCloseCMD^.Status.MemoryBranch.Errors <> 0))			//Неисправность пускателя "Закрыть"
-										OR ((Data.pStopCMD <> 0) AND (Data.pStopCMD^.Status.MemoryBranch.Errors <> 0));				//Неисправность пускателя "Остановить"
-	(*Вызываем прерывание при наличии ошибки*)
-		IF Data.Status.State.ErrSensors THEN
-			RETURN;
+	
+(*Обработка командв внешнего управления*)
+	IF Data.Command = eCommand.Enable THEN
+		Data.RTD.RDD.enEnable	:= NOT Data.RTD.RDD.enEnable;
+	END_IF
+	IF Data.Command = eCommand.Tighten THEN
+		Data.RTD.RDD.enTighten	:= NOT Data.RTD.RDD.enTighten;
+	END_IF
+	Data.Status.State.Tighten	:= Data.RTD.RDD.enTighten;
+	
+IF Data.RTD.RDD.enEnable THEN
+	(*Проверка индексации*)
+		MapStatus	:= Mapping(Data);
+		(*Собираем ошибку датчиков*)
+			Data.Status.State.ErrSensors	:= NOT (MapStatus.InputMapValid OR MapStatus.ProtectMapValid OR MapStatus.OutputManValid)	//По недостоверности индексов
+											OR ((Data.pOpenedLS <> 0) AND (Data.pOpenedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Открыта"
+											OR ((Data.pClosedLS <> 0) AND (Data.pClosedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Закрыта"
+											OR ((Data.pKeyOfLCP <> 0) AND (Data.pKeyOfLCP^.Status.MemoryBranch.Errors <> 0))			//Неисправность сигнала "Ключ ПМУ"
+											OR ((Data.pPowerState <> 0) AND (Data.pPowerState^.Status.MemoryBranch.Errors <> 0))		//Неисправность сигнала "Питание опер.цепей"
+											OR ((Data.pOpenCMD <> 0) AND (Data.pOpenCMD^.Status.MemoryBranch.Errors <> 0))				//Неисправность пускателя "Открыть"
+											OR ((Data.pCloseCMD <> 0) AND (Data.pCloseCMD^.Status.MemoryBranch.Errors <> 0))			//Неисправность пускателя "Закрыть"
+											OR ((Data.pStopCMD <> 0) AND (Data.pStopCMD^.Status.MemoryBranch.Errors <> 0));				//Неисправность пускателя "Остановить"
+	
+	(*Вычисляем конфигурацию по входам*)
+		Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (Data);
+	
+	(*Вычисляем тип управления по выходам*)
+		Data.RTD.RDD.CommandType	:= ConfigRemote (Data);
+	
+	(*Логика ключа ПМУ*)
+		fKeyOfLCP(
+				pKeyOfLCP	:= Data.pKeyOfLCP,
+	 			Command		:= Data.Command,
+	 			Status		:= Data.Status,
+	 	);
+	
+	(*Квитирование*)	
+		IF Data.Command = eCommand.Reset THEN
+			Data.Status.State.ErrStartOpen	:= FALSE;
+			Data.Status.State.ErrStartClose	:= FALSE;
+			Data.Status.State.ErrFullOpen	:= FALSE;
+			Data.Status.State.ErrFullClose	:= FALSE;
+			Data.Status.State.ErrUncmdStart	:= FALSE;
+			Data.Status.State.ErrUncmdStop	:= FALSE;
+			Data.Status.State.ErrSensors	:= FALSE;
+			Data.Status.State.EPSActive		:= FALSE;
 		END_IF
-(*Вычисляем конфигурацию по входам*)
-	Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (Data);
-(*Вычисляем тип управления по выходам*)
-	Data.RTD.RDD.CommandType	:= ConfigRemote (Data);
-(*Логика ключа ПМУ*)
-	fKeyOfLCP(
-			pKeyOfLCP	:= Data.pKeyOfLCP,
- 			Command		:= Data.Command,
- 			Status		:= Data.Status,
- 	);
-(*Обработка команд управления*)
-	(*Сбрасываем в местном режиме*)
-		IF Data.Status.State.Local THEN
-			Data.Command	:= eCommand.None;
-			Data.Source		:= eCommandSource.None;
-	(*Формируем таргет управления*)
-		ELSIF Data.Status.State.Remote THEN
-			ActionStatus := Management(Data);
-		END_IF
 		
-		
-		
+	(*Обработка команд управления*)
+		(*Сбрасываем в местном режиме*)
+			IF Data.Status.State.Local THEN
+				Data.Command	:= eCommand.None;
+				Data.Source		:= eCommandSource.None;
+		(*Формируем таргет управления*)
+			ELSIF Data.Status.State.Remote THEN
+				ActionStatus := Management(Data);
+			END_IF
+	
+	(*Конечный автомат*)
+		StateMachine(
+				mData			:= Data,
+				ActionStatus	:= ActionStatus
+		);
+	
+	(*Агрегация аварий*)
+		Data.Status.State.Alarm	:= Data.Status.State.ErrStartOpen
+								OR Data.Status.State.ErrStartClose
+								OR Data.Status.State.ErrFullOpen
+								OR Data.Status.State.ErrFullClose
+								OR Data.Status.State.ErrUncmdStart
+								OR Data.Status.State.ErrUncmdStop
+								OR Data.Status.State.ErrSensors
+								OR Data.Status.State.Unknown
+								OR Data.Status.State.EPSActive;
+								
+	(*Драйвер выходов*)
+		Output	(
+			mData			:= Data,
+			ActionStatus	:= ActionStatus
+		);
+ELSE
+	IF Data.pOpenCMD <> 0	THEN	Data.pOpenCMD^.EngValue		:= FALSE; END_IF;
+	IF Data.pCloseCMD <> 0	THEN	Data.pCloseCMD^.EngValue	:= FALSE; END_IF;
+	IF Data.pStopCMD <> 0	THEN	Data.pStopCMD^.EngValue		:= FALSE; END_IF;
+END_IF
+
+(*Упаковка состояний для SCADA*)
+	Data.Status.State.Opened		:= (Data.RTD.RDD.State = eMechFsmStep.Opened);
+	Data.Status.State.Closed		:= (Data.RTD.RDD.State = eMechFsmStep.Closed);
+	Data.Status.State.Opening		:= (Data.RTD.RDD.State = eMechFsmStep.Opening);
+	Data.Status.State.Closing		:= (Data.RTD.RDD.State = eMechFsmStep.Closing);
+	Data.Status.State.Intermediate	:= (Data.RTD.RDD.State = eMechFsmStep.Intermediate);
+
 (*Сброс интерфейса управления*)
 	Data.Command	:= eCommand.None;
 	Data.Source		:= eCommandSource.None;

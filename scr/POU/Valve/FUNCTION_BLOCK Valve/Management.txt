@@ -13,12 +13,6 @@ END_VAR
 		mData.Status.State.lkOpen	:= FALSE;
 		mData.Status.State.lkClose	:= FALSE; 
 	END_IF
-
-(*Квитирование*)
-	IF mData.Command = eCommand.Reset THEN
-		mData.Status.State.EPSActive	:= FALSE;
-		mData.Command					:= eCommand.None;
-	END_IF
 	
 (*Приоритет 0 - ПАЗ. Формируем таргет на безопасное состояние*)
 	IF mData.Source = eCommandSource.EPS OR mData.Status.State.EPSActive THEN
@@ -44,8 +38,8 @@ END_VAR
 			Management	:= eMechtarget.Deactivate;
 		END_IF
 (*Приоритет 2 - Ручное управление*)
-	ELSIF mData.Source = eCommandSource.SCADA OR mData.Source = eCommandSource.HMI THEN
-		IF NOT mData.Status.State.Auto THEN
+	ELSE
+		IF mData.Source = eCommandSource.SCADA OR mData.Source = eCommandSource.HMI THEN
 			IF mData.Command = eCommand.Stop THEN
 				Management	:= eMechTarget.Stop;
 			ELSIF mData.Command = eCommand.Open THEN

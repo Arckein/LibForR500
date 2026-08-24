@@ -7,7 +7,7 @@ STRUCT
 		Remote		: BIT;	//Бит 2 - Дистанционный
 		KeyVirtual	: BIT;	//Бит 3 - Тип ключа
 		Repair		: BIT;	//Бит 4 - Ремонт
-		ReservMode6	: BIT;	//Бит 5 - Резерв
+		Tighten		: BIT;	//Бит 5 - Импульсный дожим
 		ReservMode7	: BIT;	//Бит 6 - Резерв
 		ReservMode8	: BIT;	//Бит 7 - Резерв
 	(*Байт 1. Текущие состояния*)

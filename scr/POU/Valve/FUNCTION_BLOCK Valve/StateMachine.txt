@@ -24,25 +24,6 @@ END_VAR
 (*Контроль логического противоречия концевиков*)
 	mData.Status.State.Unknown	:= isOpened AND isClosed;
 	
-(*Сброс ошибок*)
-	IF mData.Command = eCommand.Reset THEN
-		mData.Status.State.ErrStartOpen		:= FALSE;
-		mData.Status.State.ErrStartClose	:= FALSE;
-		mData.Status.State.ErrFullOpen		:= FALSE;
-		mData.Status.State.ErrFullClose		:= FALSE;
-		mData.Status.State.ErrUncmdStart	:= FALSE;
-		mData.Status.State.ErrUncmdStop		:= FALSE;
-	END_IF
-	
-(*Агрегация ошибок*)
-	mData.Status.State.Alarm	:= mData.Status.State.ErrStartOpen OR
-								mData.Status.State.ErrStartClose OR
-								mData.Status.State.ErrFullOpen OR
-								mData.Status.State.ErrFullClose OR
-								mData.Status.State.ErrUncmdStart OR
-								mData.Status.State.ErrUncmdStop OR
-								mData.Status.State.ErrSensors;
-							
 (*Кинематика состояний*)
 	CASE mData.RTD.RDD.State OF
 	(*Инициализация*)	eMechFsmStep.Init	:
@@ -97,8 +78,14 @@ END_VAR
 				mData.RTD.RDD.State			:= eMechFsmStep.Closing;
 		(*Несанкционированный сход*)
 			ELSIF NOT isOpened THEN
-				mData.Status.State.ErrUncmdStop	:= TRUE;
-				mData.RTD.RDD.State				:= eMechFsmStep.Unknown;
+				IF mData.RTD.RDD.enTighten THEN
+					mData.RTD.RDD.tMoveAct 		:= 0;
+					mData.RTD.RDD.tStrokeAct	:= 0;
+					mData.RTD.RDD.State			:= eMechFsmStep.Opening;
+				ELSE
+					mData.Status.State.ErrUncmdStop	:= TRUE;
+					mData.RTD.RDD.State				:= eMechFsmStep.Unknown;
+				END_IF
 			END_IF
 	(*Закрыта*) eMechFsmStep.Closed	:
 		(*Контроль противоречия*)
@@ -111,8 +98,14 @@ END_VAR
 				mData.RTD.RDD.State			:= eMechFsmStep.Opening;
 		(*Несанкционированный сход*)
 			ELSIF NOT isClosed THEN
-				mData.Status.State.ErrUncmdStart	:= TRUE;
-				mData.RTD.RDD.State					:= eMechFsmStep.Unknown;
+				IF mData.RTD.RDD.enTighten THEN
+					mData.RTD.RDD.tMoveAct 		:= 0;
+					mData.RTD.RDD.tStrokeAct	:= 0;
+					mData.RTD.RDD.State			:= eMechFsmStep.Closing;
+				ELSE
+					mData.Status.State.ErrUncmdStart	:= TRUE;
+					mData.RTD.RDD.State					:= eMechFsmStep.Unknown;
+				END_IF
 			END_IF
 	(*Открывается*)	eMechFsmStep.Opening	:
 		(*Реализуем контрольные таймера*)

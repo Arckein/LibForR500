@@ -11,8 +11,8 @@ TYPE eCommand :
 	(*Виртуальный ПМУ*)
 		Local	:= 6,	//Перевод в режим "Местный" (виртуальный ключ)
 		Remote	:= 7,	//Перевод в режим "Дистанционный" (виртуальный ключ)
+	Tighten		:= 8,	//Вкл/выкл режим "импульсный дожим"
 	(*Резерв*)
-		ReservUniversalCMD1		:= 8,
 		ReservUniversalCMD2		:= 9,
 		ReservUniversalCMD3		:= 10,
 		ReservUniversalCMD4		:= 11,

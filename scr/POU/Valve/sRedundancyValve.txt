@@ -1,6 +1,7 @@
 TYPE sRedundancyValve :
 STRUCT
 	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	enTighten	: BOOL;				//Импульсный дожим
 	
 	FeedbackConfig	: eMechFeedbackConfig;	//Конфигурация входов
 	CommandType		: eMechCmdType;			//Конфигурация пускателей
