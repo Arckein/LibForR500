@@ -19,7 +19,14 @@
         END_IF
     END_IF
 
-(*METHOD Mapping*)
+METHOD Mapping : sMapValid;
+    IF InOutManager = 0 THEN
+        Mapping.InputMapValid	:= FALSE;
+        Mapping.ProtectMapValid	:= FALSE;
+        Mapping.OutputManValid	:= FALSE;
+        RETURN;
+    END_IF
+
     (*Читаем обратную связь*)
         mData.pOpenedLS		:= InOutManager.GetDI(mData.RTD.idOpenedLS, InputMapValid);		//КВ "Открыта"
         mData.pClosedLS		:= InOutManager.GetDI(mData.RTD.idClosedLS, InputMapValid);		//КВ "Закрыта"
@@ -37,9 +44,9 @@
     (*Формируем качество привязки*)			
         Mapping.InputMapValid	:= InputMapValid;
         Mapping.ProtectMapValid	:= ProtectMapValid;
-    	Mapping.OutputManValid	:= OutputManValid;
+        Mapping.OutputManValid	:= OutputManValid;
 
-(*METHOD ConfigFeedback*)
+METHOD ConfigFeedback : eMechFeedbackConfig
     (*Конфигурация "Два концевика"*)
         IF (mData.pOpenedLS <> 0) AND (mData.pClosedLS <> 0) THEN
             ConfigFeedback	:= eMechFeedbackConfig.DualFeedback;
@@ -52,9 +59,9 @@
     (*Конфигурация "Без концевиков"*)
         ELSE
             ConfigFeedback	:= eMechFeedbackConfig.NoFeedback;
-    	END_IF
-
-(*METHOD ConfigRemote*)
+        END_IF
+    
+METHOD ConfigRemote : eMechCmdType
     (*Если привязан физический "Стоп" - схема самоподхвата*)
         IF mData.pStopCMD <> 0 THEN
             ConfigRemote	:= eMechCmdType.Pulse;
@@ -66,72 +73,99 @@
             ConfigRemote	:= eMechCmdType.HoldWhileActive;
         END_IF
 
-(*METHOD Management*)
+FUNCTION fKeyOfLCP;
+    (*Определяем тип ключа по указателю*)
+        IF pKeyOfLCP = 0 THEN
+            Status.State.KeyVirtual		:= TRUE;
+            Status.State.Local			:= TRUE;
+            status.State.Remote			:= FALSE;
+            Status.MemoryBranch.Errors	:= 0;
+        ELSIF pKeyOfLCP <> 0 THEN
+            Status.State.KeyVirtual	:= FALSE;
+        END_IF
+        
+    (*Определяем состояние ключа по типу*)
+        IF Status.State.KeyVirtual THEN
+        (*Виртуальный ключ, управляется по внешней команде*)
+            CASE Command OF
+                eCommand.Remote	:
+                    Status.State.Remote	:= TRUE;
+                    Status.State.Local	:= FALSE;
+                eCommand.Local	:
+                    Status.State.Remote	:= FALSE;
+                    Status.State.Local	:= TRUE;
+            END_CASE
+        ELSE 
+        (*Физический ключ, управляется по состоянию канала*)
+            IF pKeyOfLCP^.EngValue AND (pKeyOfLCP^.Status.MemoryBranch.Errors = 0) THEN
+                Status.State.Remote	:= TRUE;
+                Status.State.Local	:= FALSE;
+            ELSE
+                Status.State.Remote	:= FALSE;
+                Status.State.Local	:= TRUE;
+            END_IF
+        END_IF
+
+METHOD Management : eMechTarget
     (*Сброс стэка*)
-	Management	:= eMechTarget.None;
+        Management	:= eMechTarget.None;
 
-(*Читаем pLock*)
-	IF mData.pLock <> 0 THEN
-		mData.Status.State.lkOpen	:= mData.pLock^.isLockActivate;
-		mData.Status.State.lkClose	:= mData.pLock^.isLockDeactivate;
-	ELSE
-		mData.Status.State.lkOpen	:= FALSE;
-		mData.Status.State.lkClose	:= FALSE; 
-	END_IF
+    (*Читаем pLock*)
+        IF mData.pLock <> 0 THEN
+            mData.Status.State.lkOpen	:= mData.pLock^.isLockActivate;
+            mData.Status.State.lkClose	:= mData.pLock^.isLockDeactivate;
+        ELSE
+            mData.Status.State.lkOpen	:= FALSE;
+            mData.Status.State.lkClose	:= FALSE; 
+        END_IF
+        
+    (*Приоритет 0 - ПАЗ. Формируем таргет на безопасное состояние*)
+        IF mData.Source = eCommandSource.EPS OR mData.Status.State.EPSActive THEN
+            mData.Status.State.EPSActive	:= TRUE;
+            (*Безопасно-открытое состояние*)
+                IF mData.RTD.SafeState = eMechSafeState.Activate THEN
+                    Management	:= eMechTarget.Activate;
+            (*Безопасно-закрытое состояние*)
+                ELSIF mData.RTD.SafeState = eMechSafeState.Deactivate THEN
+                    Management	:= eMechTarget.Deactivate;
+                END_IF
+            RETURN;
+        END_IF
+        
+    (*Приоритет 1 - Автоматика*)
+        IF mData.Source = eCommandSource.Auto THEN
+            mData.Status.State.Auto	:= TRUE;
+            IF mData.Command = eCommand.Stop THEN
+                Management	:= eMechTarget.Stop;
+            ELSIF mData.Command = eCommand.Open THEN
+                Management	:= eMechTarget.Activate;
+            ELSIF mData.Command = eCommand.Close THEN
+                Management	:= eMechtarget.Deactivate;
+            END_IF
+    (*Приоритет 2 - Ручное управление*)
+        ELSE
+            IF mData.Source = eCommandSource.SCADA OR mData.Source = eCommandSource.HMI THEN
+                IF mData.Command = eCommand.Stop THEN
+                    Management	:= eMechTarget.Stop;
+                ELSIF mData.Command = eCommand.Open THEN
+                    Management	:= eMechTarget.Activate;
+                ELSIF mData.Command = eCommand.Close THEN
+                    Management	:= eMechTarget.Deactivate;
+                END_IF
+            END_IF
+        END_IF
 
-(*Квитирование*)
-	IF mData.Command = eCommand.Reset THEN
-		mData.Status.State.EPSActive	:= FALSE;
-		mData.Command					:= eCommand.None;
-	END_IF
-	
-(*Приоритет 0 - ПАЗ. Формируем таргет на безопасное состояние*)
-	IF mData.Source = eCommandSource.EPS OR mData.Status.State.EPSActive THEN
-		mData.Status.State.EPSActive	:= TRUE;
-		(*Безопасно-открытое состояние*)
-			IF mData.RTD.SafeState = eMechSafeState.Activate THEN
-				Management	:= eMechTarget.Activate;
-		(*Безопасно-закрытое состояние*)
-			ELSIF mData.RTD.SafeState = eMechSafeState.Deactivate THEN
-				Management	:= eMechTarget.Deactivate;
-			END_IF
-		RETURN;
-	END_IF
-	
-(*Приоритет 1 - Автоматика*)
-	IF mData.Source = eCommandSource.Auto THEN
-		mData.Status.State.Auto	:= TRUE;
-		IF mData.Command = eCommand.Stop THEN
-			Management	:= eMechTarget.Stop;
-		ELSIF mData.Command = eCommand.Open THEN
-			Management	:= eMechTarget.Activate;
-		ELSIF mData.Command = eCommand.Close THEN
-			Management	:= eMechtarget.Deactivate;
-		END_IF
-(*Приоритет 2 - Ручное управление*)
-	ELSIF mData.Source = eCommandSource.SCADA OR mData.Source = eCommandSource.HMI THEN
-		IF NOT mData.Status.State.Auto THEN
-			IF mData.Command = eCommand.Stop THEN
-				Management	:= eMechTarget.Stop;
-			ELSIF mData.Command = eCommand.Open THEN
-				Management	:= eMechTarget.Activate;
-			ELSIF mData.Command = eCommand.Close THEN
-				Management	:= eMechTarget.Deactivate;
-			END_IF
-		END_IF
-	END_IF
+    (*Наложение технологических защит*)	
+        (*"Блокировку активации"*)
+            IF mData.Status.State.lkOpen AND Management = eMechTarget.Activate THEN
+                Management	:= eMechTarget.None;
+            END_IF
+        (*"Блокировку деактивации"*)
+            IF mData.Status.State.lkClose AND Management = eMechTarget.Deactivate THEN
+                Management	:= eMechTarget.None;
+            END_IF
 
-(*Наложение технологических защит*)	
-	(*"Блокировку активации"*)
-		IF mData.Status.State.lkOpen AND Management = eMechTarget.Activate THEN
-			Management	:= eMechTarget.None;
-		END_IF
-	(*"Блокировку деактивации"*)
-		IF mData.Status.State.lkClose AND Management = eMechTarget.Deactivate THEN
-			Management	:= eMechTarget.None;
-		END_IF
-
-(*METHOD StateMachine*)
+METHOD StateMachine
     (*Чтение состяония физических датчиков*)
         (*КВ "Открыта"*)
             isOpened	:= FALSE;
@@ -147,25 +181,6 @@
     (*Контроль логического противоречия концевиков*)
         mData.Status.State.Unknown	:= isOpened AND isClosed;
         
-    (*Сброс ошибок*)
-        IF mData.Command = eCommand.Reset THEN
-            mData.Status.State.ErrStartOpen		:= FALSE;
-            mData.Status.State.ErrStartClose	:= FALSE;
-            mData.Status.State.ErrFullOpen		:= FALSE;
-            mData.Status.State.ErrFullClose		:= FALSE;
-            mData.Status.State.ErrUncmdStart	:= FALSE;
-            mData.Status.State.ErrUncmdStop		:= FALSE;
-        END_IF
-        
-    (*Агрегация ошибок*)
-        mData.Status.State.Alarm	:= mData.Status.State.ErrStartOpen OR
-                                    mData.Status.State.ErrStartClose OR
-                                    mData.Status.State.ErrFullOpen OR
-                                    mData.Status.State.ErrFullClose OR
-                                    mData.Status.State.ErrUncmdStart OR
-                                    mData.Status.State.ErrUncmdStop OR
-                                    mData.Status.State.ErrSensors;
-                                
     (*Кинематика состояний*)
         CASE mData.RTD.RDD.State OF
         (*Инициализация*)	eMechFsmStep.Init	:
@@ -220,8 +235,14 @@
                     mData.RTD.RDD.State			:= eMechFsmStep.Closing;
             (*Несанкционированный сход*)
                 ELSIF NOT isOpened THEN
-                    mData.Status.State.ErrUncmdStop	:= TRUE;
-                    mData.RTD.RDD.State				:= eMechFsmStep.Unknown;
+                    IF mData.RTD.RDD.enTighten THEN
+                        mData.RTD.RDD.tMoveAct 		:= 0;
+                        mData.RTD.RDD.tStrokeAct	:= 0;
+                        mData.RTD.RDD.State			:= eMechFsmStep.Opening;
+                    ELSE
+                        mData.Status.State.ErrUncmdStop	:= TRUE;
+                        mData.RTD.RDD.State				:= eMechFsmStep.Unknown;
+                    END_IF
                 END_IF
         (*Закрыта*) eMechFsmStep.Closed	:
             (*Контроль противоречия*)
@@ -234,8 +255,14 @@
                     mData.RTD.RDD.State			:= eMechFsmStep.Opening;
             (*Несанкционированный сход*)
                 ELSIF NOT isClosed THEN
-                    mData.Status.State.ErrUncmdStart	:= TRUE;
-                    mData.RTD.RDD.State					:= eMechFsmStep.Unknown;
+                    IF mData.RTD.RDD.enTighten THEN
+                        mData.RTD.RDD.tMoveAct 		:= 0;
+                        mData.RTD.RDD.tStrokeAct	:= 0;
+                        mData.RTD.RDD.State			:= eMechFsmStep.Closing;
+                    ELSE
+                        mData.Status.State.ErrUncmdStart	:= TRUE;
+                        mData.RTD.RDD.State					:= eMechFsmStep.Unknown;
+                    END_IF
                 END_IF
         (*Открывается*)	eMechFsmStep.Opening	:
             (*Реализуем контрольные таймера*)
@@ -281,52 +308,157 @@
                     mData.Status.State.ErrFullClose	:= TRUE;
                     mData.RTD.RDD.State	:= eMechFsmStep.Unknown;
                 END_IF
-    	END_CASE
+        END_CASE
 
-(*Синхронизация памяти*)
-	SyncMemory();
+METHOD Output
+    (*Остановка по аварии*)
+        IF mData.Status.State.Alarm THEN
+            cmdOpen		:= FALSE;
+            cmdClose	:= FALSE;
+            cmdStop		:= TRUE;
+    (*Кинематика "До обратной связи"*)	
+        ELSE
+            cmdOpen		:= (mData.RTD.RDD.State	= eMechFsmStep.Opening);
+            cmdClose	:= (mData.RTD.RDD.State = eMechFsmStep.Closing);
+            cmdStop		:= (ActionStatus		= eMechTarget.Stop);
+    (*Кинематика "Постоянная команда"*)
+            IF mData.RTD.RDD.CommandType = eMechCmdType.HoldWhileActive THEN
+                cmdOpen		:= cmdOpen AND (ActionStatus = eMechTarget.Activate);
+                cmdCLose	:= cmdClose AND (ActionStatus = eMechTarget.Deactivate);
+    (*Кинематика "Импульсное управление*)
+            ELSIF mData.RTD.RDD.CommandType = eMechCmdType.Pulse THEN
+                IF cmdOpen OR cmdClose OR cmdStop THEN
+                    mData.RTD.RDD.tPulseAct	:= mData.RTD.RDD.tPulseAct + SysInfo.CycleTime;
+                    IF (mData.RTD.dlPulse > 0) AND (mData.RTD.RDD.tPulseAct >= mData.RTD.dlPulse) THEN
+                        cmdOpen		:= FALSE;
+                        cmdClose	:= FALSE;
+                        cmdStop		:= TRUE;
+                    END_IF
+                ELSE
+                    mData.RTD.RDD.tPulseAct	:= 0;
+                END_IF
+            END_IF
+        END_IF
+        
+    (*Запись команды*)
+        IF mData.pOpenCMD <> 0 THEN
+            mData.pOpenCMD^.EngValue	:= cmdOpen;
+        END_IF
+        
+        IF mData.pCloseCMD <> 0 THEN
+            mData.pCloseCMD^.EngValue	:= cmdClose;
+        END_IF
+        
+        IF mData.pStopCMD <> 0 THEN
+            mData.pStopCMD^.EngValue	:= cmdStop;
+        ELSE
+            mData.pOpenCMD^.EngValue	:= FALSE;
+            mData.pCloseCMD^.EngValue	:= FALSE;
+        END_IF
 
-(*Проверка индексации*)
-	MapStatus	:= Mapping(Data);
-	(*Собираем ошибку датчиков*)
-		Data.Status.State.ErrSensors	:= NOT (MapStatus.InputMapValid OR MapStatus.ProtectMapValid OR MapStatus.OutputManValid)	//По недостоверности индексов
-										OR ((Data.pOpenedLS <> 0) AND (Data.pOpenedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Открыта"
-										OR ((Data.pClosedLS <> 0) AND (Data.pClosedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Закрыта"
-										OR ((Data.pKeyOfLCP <> 0) AND (Data.pKeyOfLCP^.Status.MemoryBranch.Errors <> 0))			//Неисправность сигнала "Ключ ПМУ"
-										OR ((Data.pPowerState <> 0) AND (Data.pPowerState^.Status.MemoryBranch.Errors <> 0))		//Неисправность сигнала "Питание опер.цепей"
-										OR ((Data.pOpenCMD <> 0) AND (Data.pOpenCMD^.Status.MemoryBranch.Errors <> 0))				//Неисправность пускателя "Открыть"
-										OR ((Data.pCloseCMD <> 0) AND (Data.pCloseCMD^.Status.MemoryBranch.Errors <> 0))			//Неисправность пускателя "Закрыть"
-										OR ((Data.pStopCMD <> 0) AND (Data.pStopCMD^.Status.MemoryBranch.Errors <> 0));				//Неисправность пускателя "Остановить"
+FUNCTION_BLOCK Valve
+    (*Синхронизация памяти*)
+        SyncMemory();
+        
+    (*Обработка командв внешнего управления*)
+        IF Data.Command = eCommand.Enable THEN
+            Data.RTD.RDD.enEnable	:= NOT Data.RTD.RDD.enEnable;
+        END_IF
+        IF Data.Command = eCommand.Tighten THEN
+            Data.RTD.RDD.enTighten	:= NOT Data.RTD.RDD.enTighten;
+        END_IF
+        Data.Status.State.Tighten	:= Data.RTD.RDD.enTighten;
+        
+    IF Data.RTD.RDD.enEnable THEN
+        (*Проверка индексации*)
+            MapStatus	:= Mapping(Data);
+            (*Собираем ошибку датчиков*)
+                Data.Status.State.ErrSensors	:= NOT (MapStatus.InputMapValid OR MapStatus.ProtectMapValid OR MapStatus.OutputManValid)	//По недостоверности индексов
+                                                OR ((Data.pOpenedLS <> 0) AND (Data.pOpenedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Открыта"
+                                                OR ((Data.pClosedLS <> 0) AND (Data.pClosedLS^.Status.MemoryBranch.Errors <> 0))			//Неисправность КВ "Закрыта"
+                                                OR ((Data.pKeyOfLCP <> 0) AND (Data.pKeyOfLCP^.Status.MemoryBranch.Errors <> 0))			//Неисправность сигнала "Ключ ПМУ"
+                                                OR ((Data.pPowerState <> 0) AND (Data.pPowerState^.Status.MemoryBranch.Errors <> 0))		//Неисправность сигнала "Питание опер.цепей"
+                                                OR ((Data.pOpenCMD <> 0) AND (Data.pOpenCMD^.Status.MemoryBranch.Errors <> 0))				//Неисправность пускателя "Открыть"
+                                                OR ((Data.pCloseCMD <> 0) AND (Data.pCloseCMD^.Status.MemoryBranch.Errors <> 0))			//Неисправность пускателя "Закрыть"
+                                                OR ((Data.pStopCMD <> 0) AND (Data.pStopCMD^.Status.MemoryBranch.Errors <> 0));				//Неисправность пускателя "Остановить"
+        
+        (*Вычисляем конфигурацию по входам*)
+            Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (Data);
+        
+        (*Вычисляем тип управления по выходам*)
+            Data.RTD.RDD.CommandType	:= ConfigRemote (Data);
+        
+        (*Логика ключа ПМУ*)
+            fKeyOfLCP(
+                    pKeyOfLCP	:= Data.pKeyOfLCP,
+                    Command		:= Data.Command,
+                    Status		:= Data.Status,
+            );
+        
+        (*Квитирование*)	
+            IF Data.Command = eCommand.Reset THEN
+                Data.Status.State.ErrStartOpen	:= FALSE;
+                Data.Status.State.ErrStartClose	:= FALSE;
+                Data.Status.State.ErrFullOpen	:= FALSE;
+                Data.Status.State.ErrFullClose	:= FALSE;
+                Data.Status.State.ErrUncmdStart	:= FALSE;
+                Data.Status.State.ErrUncmdStop	:= FALSE;
+                Data.Status.State.ErrSensors	:= FALSE;
+                Data.Status.State.EPSActive		:= FALSE;
+            END_IF
+            
+        (*Обработка команд управления*)
+            (*Сбрасываем в местном режиме*)
+                IF Data.Status.State.Local THEN
+                    Data.Command	:= eCommand.None;
+                    Data.Source		:= eCommandSource.None;
+            (*Формируем таргет управления*)
+                ELSIF Data.Status.State.Remote THEN
+                    ActionStatus := Management(Data);
+                END_IF
+        
+        (*Конечный автомат*)
+            StateMachine(
+                    mData			:= Data,
+                    ActionStatus	:= ActionStatus
+            );
+        
+        (*Агрегация аварий*)
+            Data.Status.State.Alarm	:= Data.Status.State.ErrStartOpen
+                                    OR Data.Status.State.ErrStartClose
+                                    OR Data.Status.State.ErrFullOpen
+                                    OR Data.Status.State.ErrFullClose
+                                    OR Data.Status.State.ErrUncmdStart
+                                    OR Data.Status.State.ErrUncmdStop
+                                    OR Data.Status.State.ErrSensors
+                                    OR Data.Status.State.Unknown
+                                    OR Data.Status.State.EPSActive;
+                                    
+        (*Драйвер выходов*)
+            Output	(
+                mData			:= Data,
+                ActionStatus	:= ActionStatus
+            );
+    ELSE
+        IF Data.pOpenCMD <> 0	THEN	Data.pOpenCMD^.EngValue		:= FALSE; END_IF;
+        IF Data.pCloseCMD <> 0	THEN	Data.pCloseCMD^.EngValue	:= FALSE; END_IF;
+        IF Data.pStopCMD <> 0	THEN	Data.pStopCMD^.EngValue		:= FALSE; END_IF;
+    END_IF
 
-(*Вычисляем конфигурацию по входам*)
-	Data.RTD.RDD.FeedbackConfig	:= ConfigFeedback (Data);
+    (*Упаковка состояний для SCADA*)
+        Data.Status.State.Opened		:= (Data.RTD.RDD.State = eMechFsmStep.Opened);
+        Data.Status.State.Closed		:= (Data.RTD.RDD.State = eMechFsmStep.Closed);
+        Data.Status.State.Opening		:= (Data.RTD.RDD.State = eMechFsmStep.Opening);
+        Data.Status.State.Closing		:= (Data.RTD.RDD.State = eMechFsmStep.Closing);
+        Data.Status.State.Intermediate	:= (Data.RTD.RDD.State = eMechFsmStep.Intermediate);
 
-(*Вычисляем тип управления по выходам*)
-	Data.RTD.RDD.CommandType	:= ConfigRemote (Data);
-
-(*Логика ключа ПМУ*)
-	fKeyOfLCP(
-			pKeyOfLCP	:= Data.pKeyOfLCP,
- 			Command		:= Data.Command,
- 			Status		:= Data.Status,
- 	);
-
-(*Обработка команд управления*)
-	(*Сбрасываем в местном режиме*)
-		IF Data.Status.State.Local THEN
-			Data.Command	:= eCommand.None;
-			Data.Source		:= eCommandSource.None;
-	(*Формируем таргет управления*)
-		ELSIF Data.Status.State.Remote THEN
-			ActionStatus := Management(Data);
-		END_IF
-
-(*Конечный автомат*)
-	StateMachine(
-			mData			:= Data,
-			ActionStatus	:= ActionStatus
-	);
-
-(*Сброс интерфейса управления*)
-	Data.Command	:= eCommand.None;
-	Data.Source		:= eCommandSource.None;
+    (*Логирование и сброс интерфейса управления*)
+        IF Data.Command <> eCommand.None THEN
+            FOR i	:= 9 TO 1 BY -1 DO
+                Data.RTD.RDD.Logger[i+1]	:= Data.RTD.RDD.Logger[i];
+            END_FOR
+            Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+            Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+        END_IF
+        Data.Command	:= eCommand.None;
+        Data.Source		:= eCommandSource.None;

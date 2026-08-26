@@ -672,6 +672,7 @@ END_TYPE
 TYPE sRedundancyValve :
 STRUCT
 	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	enTighten	: BOOL;				//Импульсный дожим
 	
 	FeedbackConfig	: eMechFeedbackConfig;	//Конфигурация входов
 	CommandType		: eMechCmdType;			//Конфигурация пускателей
@@ -680,6 +681,8 @@ STRUCT
 	tMoveAct	: REAL;	//Текущее значение таймера контроля старта
 	tStrokeAct	: REAL;	//Текущее значение таймера полного хода
 	tPulseAct	: REAL;	//Текущее значение таймера импульса
+	
+	Logger	: ARRAY [1..5] OF sCommandLog;
 END_STRUCT
 END_TYPE
 
@@ -706,5 +709,12 @@ STRUCT
 	idStopCMD	: UINT;	//ID Пускатель "Стоп"
 
 	RDD	: sRedundancyValve;	//Компоненты резервирования
+END_STRUCT
+END_TYPE
+
+TYPE sCommandLog :
+STRUCT
+	Command	: eCommand;
+	Source	: eCommandSource;
 END_STRUCT
 END_TYPE

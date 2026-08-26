@@ -60,3 +60,16 @@ VAR
 	isOpened	: BOOL;
 	isClosed	: BOOL;
 END_VAR
+
+METHOD Output
+VAR_IN_OUT
+	mData	: sDataValve;
+END_VAR
+VAR_INPUT
+	ActionStatus	: eMechTarget;
+END_VAR
+VAR
+	cmdOpen		: BOOL;
+	cmdClose	: BOOL;
+	cmdStop		: BOOL;
+END_VAR

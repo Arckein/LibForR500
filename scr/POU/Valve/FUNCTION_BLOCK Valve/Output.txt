@@ -10,15 +10,47 @@ VAR
 	cmdClose	: BOOL;
 	cmdStop		: BOOL;
 END_VAR
-METHOD Output
-VAR_IN_OUT
-	mData	: sDataValve;
-END_VAR
-VAR_INPUT
-	ActionStatus	: eMechTarget;
-END_VAR
-VAR
-	cmdOpen		: BOOL;
-	cmdClose	: BOOL;
-	cmdStop		: BOOL;
-END_VAR
+(*Остановка по аварии*)
+	IF mData.Status.State.Alarm THEN
+		cmdOpen		:= FALSE;
+		cmdClose	:= FALSE;
+		cmdStop		:= TRUE;
+(*Кинематика "До обратной связи"*)	
+	ELSE
+		cmdOpen		:= (mData.RTD.RDD.State	= eMechFsmStep.Opening);
+		cmdClose	:= (mData.RTD.RDD.State = eMechFsmStep.Closing);
+		cmdStop		:= (ActionStatus		= eMechTarget.Stop);
+(*Кинематика "Постоянная команда"*)
+		IF mData.RTD.RDD.CommandType = eMechCmdType.HoldWhileActive THEN
+			cmdOpen		:= cmdOpen AND (ActionStatus = eMechTarget.Activate);
+			cmdCLose	:= cmdClose AND (ActionStatus = eMechTarget.Deactivate);
+(*Кинематика "Импульсное управление*)
+		ELSIF mData.RTD.RDD.CommandType = eMechCmdType.Pulse THEN
+			IF cmdOpen OR cmdClose OR cmdStop THEN
+				mData.RTD.RDD.tPulseAct	:= mData.RTD.RDD.tPulseAct + SysInfo.CycleTime;
+				IF (mData.RTD.dlPulse > 0) AND (mData.RTD.RDD.tPulseAct >= mData.RTD.dlPulse) THEN
+					cmdOpen		:= FALSE;
+					cmdClose	:= FALSE;
+					cmdStop		:= TRUE;
+				END_IF
+			ELSE
+				mData.RTD.RDD.tPulseAct	:= 0;
+			END_IF
+		END_IF
+	END_IF
+	
+(*Запись команды*)
+	IF mData.pOpenCMD <> 0 THEN
+		mData.pOpenCMD^.EngValue	:= cmdOpen;
+	END_IF
+	
+	IF mData.pCloseCMD <> 0 THEN
+		mData.pCloseCMD^.EngValue	:= cmdClose;
+	END_IF
+	
+	IF mData.pStopCMD <> 0 THEN
+		mData.pStopCMD^.EngValue	:= cmdStop;
+	ELSE
+		mData.pOpenCMD^.EngValue	:= FALSE;
+		mData.pCloseCMD^.EngValue	:= FALSE;
+	END_IF
