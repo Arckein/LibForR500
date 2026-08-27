@@ -7,8 +7,10 @@ VAR_IN_OUT
 	rData	: sRetainAI;	//Контейнер retain-данных
 END_VAR
 VAR
-	localIn		: REAL;			//Буферизированное значение "Вход с канала"
+	localIn	: REAL;	//Буферизированное значение "Вход с канала"
+	i		: UINT;	//Счетчик
 END_VAR
+
 (*Синхронизация памяти*)
 	SyncMemory();
 (*Буферизация входных данных*)
@@ -41,7 +43,17 @@ END_VAR
 		eCommand.Repair:
 			Data.RTD.RDD.enRepair		:= NOT Data.RTD.RDD.enRepair;
 	END_CASE
-	Data.Command	:= eCommand.None;
+	(*Логирование и сброс интерфейса управления*)
+		IF Data.Command <> eCommand.None THEN
+			FOR i	:= 5 TO 2 BY -1 DO
+				Data.RTD.RDD.Logger[i-1]	:= Data.RTD.RDD.Logger[i];
+			END_FOR
+			Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+			Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+		END_IF
+		Data.Command	:= eCommand.None;
+		Data.Source		:= eCommandSource.None;	
+	
 	(*Упаковка состяоний режимов*)
 	Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
 	Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;

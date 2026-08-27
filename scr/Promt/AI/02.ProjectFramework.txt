@@ -1,0 +1,46 @@
+FUNCTION_BLOCK AnalogIn
+VAR_INPUT
+	SysInfo	: sSystemInfo;	//Информация о ПЛК
+END_VAR
+VAR_IN_OUT
+	Data	: sDataAI;		//Контейнер данных
+	rData	: sRetainAI;	//Контейнер retain-данных
+END_VAR
+VAR
+	localIn	: REAL;	//Буферизированное значение "Вход с канала"
+	i		: UINT;	//Счетчик
+END_VAR
+
+ACTION SyncMemory
+// (Предполагается, что переменных VAR_INPUT/VAR_IN_OUT нет, 
+// так как метод обращается к Data/rData из родительского FB)
+
+METHOD ApplyFilter : REAL
+VAR
+	Alpha : REAL;
+END_VAR
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+
+METHOD CheckAlarms : eAlarmType
+VAR
+	isActiveAlarm	: BOOL;
+	isHH			: BOOL;
+	isH				: BOOL;
+	isL				: BOOL;
+	isLL			: BOOL;
+END_VAR
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+
+METHOD ScaleValue : REAL
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR
+
+METHOD Validation
+VAR_IN_OUT
+	mData	: sDataAI;
+END_VAR

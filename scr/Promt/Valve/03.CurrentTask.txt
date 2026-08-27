@@ -368,7 +368,19 @@ FUNCTION_BLOCK Valve
             Data.RTD.RDD.enTighten	:= NOT Data.RTD.RDD.enTighten;
         END_IF
         Data.Status.State.Tighten	:= Data.RTD.RDD.enTighten;
-        
+
+    IF NOT rData.RDD.enEnable THEN
+        IF Data.pOpenCMD <> 0 THEN
+            Data.pOpenCMD^.EngValue := FALSE;
+        END_IF
+        IF Data.pCloseCMD <> 0 THEN
+            Data.pCloseCMD^.EngValue := FALSE;
+        END_IF
+        IF Data.pStopCMD <> 0 THEN
+            Data.pStopCMD^.EngValue := FALSE;
+        END_IF
+        RETURN;
+    END_IF	
     IF Data.RTD.RDD.enEnable THEN
         (*Проверка индексации*)
             MapStatus	:= Mapping(Data);

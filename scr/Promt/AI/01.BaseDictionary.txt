@@ -1,0 +1,285 @@
+(*Название GVL - IO*)
+VAR_GLOBAL
+	AnalogIn	: ARRAY [1..16] OF sDataAI;
+	DiscreteIn	: ARRAY [1..32] OF sDataDI;
+	
+	AnalogOut	: ARRAY [1..8] OF sDataAO;
+	DiscreteOut	: ARRAY [1..32] OF sDataDO;
+	
+	Lock		: ARRAY [1..2] OF sDataLock;
+	
+	Valve		: ARRAY [1..2] OF sDataValve;
+END_VAR
+
+(*Название GVL - PersistentVars*)
+VAR_GLOBAL PERSISTENT RETAIN
+	SystemSignature		: DWORD;
+	
+	AnalogIn_Retain		: ARRAY [1..16] OF sRetainAI;
+	DiscreteIn_Retain	: ARRAY [1..32] OF sRetainDI;
+	
+	AnalogOut_Retain	: ARRAY [1..8] OF sRetainAO;
+	DiscreteOut_Retain	: ARRAY [1..32] OF sRetainDO;
+	
+	Lock_Retain			: ARRAY [1..2] OF sRetainLock;
+	Valve_Retain		: ARRAY [1..2] OF sRetainValve;
+END_VAR
+
+(*Название GVL - System*)
+VAR_GLOBAL
+	WhatchDog	: BOOL;	//Признак активности OPC UA
+	SystemInfo	: sSystemInfo;
+	
+	InOutManager	: fbInOutManager;
+END_VAR
+
+TYPE eCommand :
+(
+(*Универсальные команды*)
+	None	:= 0,	//Нет команды
+	Enable	:= 1,	//Вкл/Выкл обработку логики ФБ
+	Imit	:= 2,	//Вкл/Выкл режим "Имитация"
+	Repair	:= 3,	//Вкл/Выкл режим "Ремонт"
+	Reset	:= 4,	//Сброс/Квитирование
+	Stop	:= 5,	//Универсальная команда "Стоп"
+	(*Виртуальный ПМУ*)
+		Local	:= 6,	//Перевод в режим "Местный" (виртуальный ключ)
+		Remote	:= 7,	//Перевод в режим "Дистанционный" (виртуальный ключ)
+	Tighten		:= 8,	//Вкл/выкл режим "импульсный дожим"
+	(*Резерв*)
+		ReservUniversalCMD2		:= 9,
+		ReservUniversalCMD3		:= 10,
+		ReservUniversalCMD4		:= 11,
+		ReservUniversalCMD5		:= 12,
+		ReservUniversalCMD6		:= 13,
+		ReservUniversalCMD7		:= 14,
+		ReservUniversalCMD8		:= 15,
+		ReservUniversalCMD9		:= 16,
+		ReservUniversalCMD10	:= 17,
+		ReservUniversalCMD11	:= 18,
+		ReservUniversalCMD12	:= 19,
+		
+(*Групповые команды*)
+	Filter		:= 20,	//Вкл/Выкл режим "Фильтрация"
+	AlarmMode	:= 21,	//Вкл/Выкл режим "Сигнализация"
+	Delay		:= 22,	//Вкл/Выкл режим "Задержка срабатывания сигнализации"
+	Invert		:= 23,	//Вкл/Выкл режим "Инверсия"
+	(*Резерв*)
+		ReservGroubCMD1	:= 24,
+		ReservGroubCMD2	:= 25,
+		ReservGroubCMD3	:= 26,
+		ReservGroubCMD4	:= 27,
+		ReservGroubCMD5	:= 28,
+		ReservGroubCMD6	:= 29,
+		
+(*Индивидуальные команды*)
+	(*AnalogIn*)
+		Freezing	:= 30,	//Вкл/Выкл режима "Заморозка"
+		CutOff		:= 31,	//Вкл/Выкл режим "Мертвая зона"
+		UseHH		:= 32,	//Вкл/Выкл режим "Контроль ВАУ"
+		UseH		:= 33,	//Вкл/Выкл режим "Контроль ВПУ"
+		UseL		:= 34,	//Вкл/Выкл режим "Контроль НПУ"
+		UseLL		:= 35,	//Вкл/Выкл режим "Контроль НАУ"
+		(*Резерв*)
+			ReservAICMD1	:= 36,
+			ReservAICMD2	:= 37,
+			ReservAICMD3	:= 38,
+			ReservAICMD4	:= 39,
+	
+	(*AnalogOut*)
+		(*Резерв*)
+			ReservAOCMD1	:= 40,
+			ReservAOCMD2	:= 41,
+			ReservAOCMD3	:= 42,
+			ReservAOCMD4	:= 43,
+			ReservAOCMD5	:= 44,
+			ReservAOCMD6	:= 45,
+			
+	(*Valve*)
+		Open	:= 46,	//Команда "Открыть"
+		Close	:= 47,	//Команда "Закрыть"
+		(*Резерв*)
+			ReservValveCMD1	:= 48,
+			ReservValveCMD2	:= 49,
+			ReservValveCMD3	:= 50,
+	
+	(*Motor*)
+		Start	:= 51,	//Команда "Пуск"
+    	(*Резерв*)
+			ReservMotorCMD1	:= 52,
+			ReservMotorCMD2	:= 53,
+			ReservMotorCMD3	:= 54,
+			ReservMotorCMD4	:= 55
+);
+END_TYPE
+
+TYPE eCommandSource :
+(
+	None	:= 0,	//Нет команды
+	SCADA	:= 1,	//Уровень оператора / диспетчера
+	HMI		:= 2,	//Уровень аппаратчика
+	Auto	:= 3,	//Автоматика
+	EPS		:= 4 	//ПАЗ
+) UINT;
+END_TYPE
+
+TYPE uSignalStatus :
+UNION
+	AsDWord			: DWORD;			//Комплексный статус
+	State   		: sSignalState;		//Доступ к структуре статусов (битам)
+	MemoryBranch	: sSignalMemory;	//Доступ к байтам статусов
+END_UNION
+END_TYPE
+
+TYPE sSignalState :
+STRUCT
+(*Слово 1. Режимы и диагностика*)
+	(*Байт 1. Режимы работы сигнала*)
+		Disabled	: BIT;	//Бит 0	- Признак режима "Обработка логики отключена"
+		Imitation	: BIT;	//Бит 1	- Признак режима "Имитация"
+		Freezing	: BIT;	//Бит 2	- Признак режима "Заморозка последнего значения"
+		Filter		: BIT;	//Бит 3	- Признак режима "Фильтрация"
+		Invert		: BIT;	//Бит 4	- Признак режима "Инверсия"
+		CutOff		: BIT;	//Бит 5	- Признак режима "Мертвая зона"
+		AlarmMode	: BIT;	//Бит 6	- Признак режима "Сигнализация аварий"
+		Repair		: BIT;	//Бит 7	- Признак режима "Ремонт"
+	(*Байт 2. Ошибки*)
+		ModuleFault		: BIT;	//Бит 0 - Ошибка "Неисправность модуля"
+		ChFault			: BIT;	//Бит 1 - Ошибка "Неисправность канала"
+		ExternalBreak	: BIT;	//Бит 2 - Ошибка "Обрыв цепи"
+		ConfigFault		: BIT;	//Бит 3 - Ошибка "Ошибка конфигурации сигнала"
+		ShortCircuit	: BIT;	//Бит 4 - Ошибка "Выше порога достоверности"
+		Break			: BIT;	//Бит 5 - Ошибка "Ниже порога достоверности"
+		Reserv14		: BIT;	//Бит 6 - Резерв
+		Reserv15		: BIT;	//Бит 7 - Резерв
+		
+(*Слово 2. Сигнализации*)
+	(*Байт 3-4*)
+		ActiveAlarm	:	eAlarmType;
+END_STRUCT
+END_TYPE
+
+TYPE sSignalMemory :
+STRUCT
+	Mode	: BYTE;	//Слово 1, байт 0 - "Режимы работы"
+	Errors	: BYTE;	//Слово 1, байт 1 - "Ошибки"
+	Alarm	: WORD;	//Слово 2 - "Сигнализации"
+END_STRUCT
+END_TYPE
+
+TYPE sSystemInfo :
+STRUCT
+	CycleTime	: REAL:= 0.1;	//Время цикла шины (по умолчанию 100 мс)
+	RedMode		: INT;			//Текущий статус резервирования проекта
+	RDD_Active	: BOOL;			//Флаг резервирования "Ведущий"
+	RDD_Standby	: BOOL;			//Флаг резервирования "Ведомый"
+	
+	FirstScan	: BOOL	:= FALSE;	//Флаг "Первый опрос ПЛК"
+	isInit		: BOOL;				//Флаг "Первичная инициализация ПЛК"
+	isColdStart	: BOOL;				//Флаг "Холодный старт"
+	
+	SizeAI		: UINT;	//Размер массива AI
+	SizeDI		: UINT;	//Размер массива DI
+	SizeAO		: UINT;	//Размер массива AO
+	SizeDO		: UINT;	//Размер массива DO
+	SizeValve	: UINT;	//Размер массива Valve
+	SizeLock	: UINT; //Размер массива Lock
+END_STRUCT
+END_TYPE
+
+TYPE eScaleType :
+(
+	NaN				:= 0,	//Без масштабирования
+	dLinear			:= 1,	//Линейная (прямая)
+	iLinear			:= 2,	//Линейная (обратная)
+	dQuadratic		:= 3,	//Квадратическая (прямая)
+	iQuadratic		:= 4,	//Квадратическая (обратная)
+	dExponential	:= 5,	//Экспоненциальная (прямая)
+	iExponential	:= 6,	//Экспоненциальная (обратная)
+	byCoeff			:= 7 	//По коэффициенту
+);
+END_TYPE
+
+TYPE sDataAI :
+STRUCT
+(*Входные значения*)
+	In				: REAL;			//Вход с канала 
+	ChStatus		: BOOL;			//Статус с канала (TRUE - Ошибка связи/канала, FALSE - Норма)
+	ModuleStatus	: BOOL;			//Статус с модуля	
+	Command			: eCommand;		//Команды внешнего управления
+	Source			: eCommandSource;
+	RTD				: sRetainAI;	//Хранимые данных
+	
+(*Выходные значения*)
+	RawValue	: REAL;				//Значение в эл.величине (мА)
+	EngValue	: REAL;				//Значение в инж.величине (ед.изм)
+	Status		: uSignalStatus;	//Статус сигнала
+END_STRUCT
+END_TYPE
+
+TYPE sRedundancyAI :
+STRUCT
+	ImitVal	: REAL;	//Значение имитации
+
+	enEnable	: BOOL	:= TRUE;	//Обработка вкл/выкл
+	enImit		: BOOL;				//Имитация вкл/выкл
+	enFreezing	: BOOL;				//Заморозка последнего достоверного значения вкл/выкл
+	enFilter	: BOOL;				//Фильтрация входящей величины
+	enAlarmMode	: BOOL;				//Сигнализация вкл/выкл
+	enUseHH		: BOOL;				//Сигнализация по ВАУ вкл/выкл
+	enUseH		: BOOL;				//Сигнализация по ВПУ вкл/выкл
+	enUseL		: BOOL;				//Сигнализация по НПУ вкл/выкл
+	enUseLL		: BOOL;				//Сигнализация по НАУ вкл/выкл
+	enDelay		: BOOL;				//Задержка сработки сигнализации вкл/выкл
+	enCutOff	: BOOL;				//Мертвая зона вкл/выкл
+	enRepair	: bool;				//Режим ремонт
+	
+(*Внутренняя память*)
+	freezingIn	: REAL;	//Промежуточное значение для режима заморозки
+	filteredIn  : REAL;	//Промежуточное значение после фильтрации
+	isFirstPass : BOOL;	//Первый цикл фильтрации значения
+	alarmTimer  : REAL;	//Текущее значение таймера для сигнализаций
+	
+	Logger	: ARRAY [1..5] OF sCommandLog;
+END_STRUCT
+END_TYPE
+
+TYPE sRetainAI :
+STRUCT
+(*Конфигурация электрической шкалы *)
+	XMin				: REAL;	//Нижняя граница эл.шкалы
+	XMax				: REAL;	//Верхняя граница эл.шкалы
+	BreakValue			: REAL;	//Нижний порог достоверности
+	ShortCircuitValue	: REAL;	//Верхний порог достоверности
+	
+(* Конфигурация инженерной шкалы *)
+	ScaleType	: eScaleType;	//Тип шкалы
+	YMin		: REAL;			//Нижняя граница инж.шкалы
+	YMax		: REAL;			//Верхняя граница инж.шкалы
+	Coeff		: REAL;			//Коэффициент усиления
+    
+	TF			: REAL;	//Время фильтрации (сек)
+	Threshold	: REAL;	//Уставка мертвой зоны (инж.ед)
+	
+(*Аварийные уставки и фильтры*)
+	HH		: REAL;	//ВАУ
+	H		: REAL;	//ВПУ
+	L		: REAL;	//НПУ
+	LL		: REAL;	//НАУ
+	HYST	: REAL;	//Гистерезис
+	TD		: REAL;	//Задержка срабатывания сигнализации (сек)
+	
+	RDD		: sRedundancyAI;	//Компоненты резервирования
+END_STRUCT
+END_TYPE
+
+TYPE eAlarmType :
+(
+	No	:= 0,	//Нет активных сигнализаций
+	Yes	:= 1,	//Есть активная сигнализация
+	HH	:= 2,	//Верхняя аварийная
+	H	:= 3,	//Верхняя предупредительная
+	L	:= 4,	//Нижняя предупредительная
+	LL	:= 5	//Нижняя аварийная
+);
+END_TYPE

@@ -65,7 +65,7 @@ END_VAR
 	END_IF
 	
 (*Возвращаем результат*)
-	IF NOT mData.RTD.RDD.enDelay OR (mData.RTD.RDD.alarmTimer >= mData.RTD.TD*1000) OR (mData.Status.MemoryBranch.Alarm <> eAlarmType.No) THEN
+	IF NOT mData.RTD.RDD.enDelay OR (mData.RTD.RDD.alarmTimer >= mData.RTD.TD*1000) OR (mData.Status.State.ActiveAlarm <> eAlarmType.No) THEN
 		IF isHH THEN
 			CheckAlarms := eAlarmType.HH;
 			RETURN;

@@ -1,0 +1,305 @@
+FUNCTION_BLOCK AnalogIn
+    (*Синхронизация памяти*)
+        SyncMemory();
+    (*Буферизация входных данных*)
+        localIn			:= Data.In;
+        Data.RawValue	:= localIn;
+    (*Обработка команд внешнего управления*)
+        CASE Data.Command OF
+            eCommand.Enable:
+                Data.RTD.RDD.enEnable		:= NOT Data.RTD.RDD.enEnable;
+            eCommand.Imit:
+                Data.RTD.RDD.enImit			:= NOT Data.RTD.RDD.enImit;
+            eCommand.Freezing:
+                Data.RTD.RDD.enFreezing		:= NOT Data.RTD.RDD.enFreezing;
+            eCommand.Filter:
+                Data.RTD.RDD.enFilter		:= NOT Data.RTD.RDD.enFilter;
+            eCommand.AlarmMode:
+                Data.RTD.RDD.enAlarmMode	:= NOT Data.RTD.RDD.enAlarmMode;
+            eCommand.UseHH:
+                Data.RTD.RDD.enUseHH		:= NOT Data.RTD.RDD.enUseHH;
+            eCommand.UseH:
+                Data.RTD.RDD.enUseH			:= NOT Data.RTD.RDD.enUseH;
+            eCommand.UseL:
+                Data.RTD.RDD.enUseL			:= NOT Data.RTD.RDD.enUseL;
+            eCommand.UseLL:
+                Data.RTD.RDD.enUseLL		:= NOT Data.RTD.RDD.enUseLL;
+            eCommand.Delay:
+                Data.RTD.RDD.enDelay		:= NOT Data.RTD.RDD.enDelay;
+            eCommand.CutOff:
+                Data.RTD.RDD.enCutOff		:= NOT Data.RTD.RDD.enCutOff;
+            eCommand.Repair:
+                Data.RTD.RDD.enRepair		:= NOT Data.RTD.RDD.enRepair;
+        END_CASE
+        (*Логирование и сброс интерфейса управления*)
+            IF Data.Command <> eCommand.None THEN
+                FOR i	:= 5 TO 1 BY -1 DO
+                    Data.RTD.RDD.Logger[i+1]	:= Data.RTD.RDD.Logger[i];
+                END_FOR
+                Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+                Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+            END_IF
+            Data.Command	:= eCommand.None;
+            Data.Source		:= eCommandSource.None;	
+        
+        (*Упаковка состяоний режимов*)
+        Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
+        Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;
+        Data.Status.State.Freezing		:= Data.RTD.RDD.enFreezing;
+        Data.Status.State.Filter		:= Data.RTD.RDD.enFilter;
+        Data.Status.State.CutOff		:= Data.RTD.RDD.enCutOff;
+        Data.Status.State.AlarmMode		:= Data.RTD.RDD.enAlarmMode;
+        Data.Status.State.Repair		:= Data.RTD.RDD.enRepair;
+    (*Основная логика - вкл*)
+        IF Data.RTD.RDD.enEnable THEN
+        (*Валидация*)
+            Validation	(Data);
+        (*Имитация*)
+            IF Data.RTD.RDD.enImit THEN
+                Data.EngValue					:= Data.RTD.RDD.ImitVal;
+                Data.Status.MemoryBranch.Errors	:= 0;
+                (*Вычисляем сигнализации*)
+                    IF Data.RTD.RDD.enAlarmMode THEN
+                        Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+                    ELSE
+                        Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
+                    END_IF
+        (*Нормальная работа*)
+            ELSIF Data.Status.MemoryBranch.Errors = 0 THEN
+            (*Режим Фильтрации*)
+                IF Data.RTD.RDD.enFilter THEN
+                    localIn := ApplyFilter(Data);
+                ELSE
+                    Data.RTD.RDD.isFirstPass := TRUE;
+                END_IF
+            (*Обновляем буфер для "Заморозки"*)
+                IF Data.RTD.RDD.enFreezing THEN
+                    Data.RTD.RDD.freezingIn := localIn;
+                END_IF
+            (*Шкалируем значение*)
+                Data.EngValue := ScaleValue(Data);
+            (*Проверяем мертвую зону*)
+                IF Data.RTD.RDD.enCutOff THEN
+                    IF ABS(Data.EngValue - Data.RTD.YMin) < Data.RTD.Threshold THEN
+                        Data.EngValue := Data.RTD.YMin;
+                    END_IF
+                END_IF
+            (*Записываем значение для безударного перехода в Имитацию*)
+                Data.RTD.RDD.ImitVal := Data.EngValue;
+            (*Вычисление сигнализаций*)
+                IF Data.RTD.RDD.enAlarmMode THEN
+                    Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+                ELSE
+                    Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
+                END_IF
+        (*Ошибки датчика*)
+            ELSE
+            (*Реализация режима заморозки*)
+                IF Data.RTD.RDD.enFreezing AND NOT Data.Status.State.ConfigFault THEN
+                    localIn			:= Data.RTD.RDD.freezingIn;
+                    Data.EngValue	:= ScaleValue(mData := Data);
+                    (*Проверяем мертвую зону*)
+                        IF Data.RTD.RDD.enCutOff THEN
+                            IF ABS(Data.EngValue - Data.RTD.YMin) < Data.RTD.Threshold THEN
+                                Data.EngValue	:= Data.RTD.YMin;
+                            END_IF
+                        END_IF
+                ELSE
+                    Data.EngValue	:= Data.RTD.YMin;
+                END_IF
+            (*Сбрасываем сигнализацию*)
+                Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+                Data.RTD.RDD.alarmTimer			:= 0.0;
+            END_IF
+    (*Основная логика - выкл*)
+        ELSE
+            Data.EngValue					:= 0.0;
+            Data.RTD.RDD.isFirstPass		:= TRUE;
+            Data.RTD.RDD.alarmTimer			:= 0.0;
+            Data.Status.MemoryBranch.Errors := 0;
+            Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+        END_IF
+
+ACTION SyncMemory
+    (*Инициализация*)
+        IF SysInfo.isInit THEN
+        (*Первая загрузка проекта.
+        Блок забирает данные из PLC_Init.InitAIParam в соответствии с номером элемента массива и формирует из них retain-данные*)
+            rData	:= Data.RTD;
+        ELSIF SysInfo.isColdStart THEN
+        (*Холодная прогрузка или запуск после отключения питания.
+        Блок забирает данные из retain-памяти*)
+            Data.RTD	:= rData;
+        ELSE
+    (*Рабочий цикл ПЛК*)	
+        IF SysInfo.RDD_Active THEN
+        (*На активной обоновляем retain-данные*)
+            rData		:= Data.RTD;
+        ELSIF SysInfo.RDD_Standby THEN
+        (*На ведомой обновляем данные самого ФБ*)
+            Data.RTD	:= rData;
+        END_IF
+    END_IF
+
+METHOD ApplyFilter : REAL
+    IF mData.RTD.TF <= 0.001 THEN
+        ApplyFilter := localIn;
+        mData.RTD.RDD.isFirstPass := TRUE; 
+        RETURN;
+    END_IF
+
+    IF mData.RTD.RDD.isFirstPass THEN
+        mData.RTD.RDD.filteredIn  := localIn;
+        mData.RTD.RDD.isFirstPass := FALSE;
+    END_IF
+
+    Alpha := SysInfo.CycleTime / (mData.RTD.TF*1000 + SysInfo.CycleTime);
+    mData.RTD.RDD.filteredIn := mData.RTD.RDD.filteredIn + Alpha * (localIn - mData.RTD.RDD.filteredIn);
+
+    ApplyFilter := mData.RTD.RDD.filteredIn;
+
+METHOD CheckAlarms : eAlarmType
+    (*Сбрасываем стек*)
+        CheckAlarms	:= eAlarmType.No;
+
+    (*Вычисляем активную сигнализацию*)
+        (*ВАУ, если активная*)
+            IF mData.RTD.RDD.enUseHH THEN	
+                IF mData.EngValue >= mData.RTD.HH THEN							//Показания выше уставки -> Формируем аварию
+                    isHH := TRUE;
+                ELSIF mData.EngValue < (mData.RTD.HH - mData.RTD.HYST) THEN		//Показания ниже разности уставки и гистерезиса -> Снимаем аварию
+                    isHH := FALSE;
+                ELSE
+                    isHH := (mData.Status.State.ActiveAlarm = eAlarmType.HH);	//Удерживаем промежуточное значение
+                END_IF
+            END_IF
+        (*ВПУ, если активна*)
+            IF mData.RTD.RDD.enUseH THEN
+                IF mData.EngValue >= mData.RTD.H THEN
+                    isH	:= TRUE;
+                ELSIF mData.EngValue < (mData.RTD.H - mData.RTD.HYST) THEN
+                    isH	:= FALSE;
+                ELSE
+                    isH	:= (mData.Status.State.ActiveAlarm = eAlarmType.H);
+                END_IF
+            END_IF
+        (*НПУ, если активна*)
+            IF mData.RTD.RDD.enUseL THEN
+                IF mData.EngValue <= mData.RTD.L THEN
+                    isL	:= TRUE;
+                ELSIF mData.EngValue > (mData.RTD.L + mData.RTD.HYST) THEN
+                    isL := FALSE;
+                ELSE
+                    isL	:= (mData.Status.State.ActiveAlarm = eAlarmType.L);
+                END_IF
+            END_IF
+        (*НАУ, если активна*)
+            IF mData.RTD.RDD.enUseLL THEN
+                IF mData.EngValue <= mData.RTD.LL THEN
+                    isLL	:= TRUE;
+                ELSIF mData.EngValue > (mData.RTD.LL + mData.RTD.HYST) THEN
+                    isLL := FALSE;
+                ELSE
+                    isLL	:= (mData.Status.State.ActiveAlarm = eAlarmType.LL);
+                END_IF
+            END_IF
+
+    (*Реализуем задержку возврата значени*)
+        isActiveAlarm	:= isHH OR isH OR isL OR isLL;
+        IF isActiveAlarm THEN
+            IF mData.RTD.RDD.enDelay THEN
+                mData.RTD.RDD.alarmTimer	:= mData.RTD.RDD.alarmTimer + SysInfo.CycleTime;
+            END_IF
+        ELSE
+            mData.RTD.RDD.alarmTimer := 0;
+        END_IF
+        
+    (*Возвращаем результат*)
+        IF NOT mData.RTD.RDD.enDelay OR (mData.RTD.RDD.alarmTimer >= mData.RTD.TD*1000) OR (mData.Status.MemoryBranch.Alarm <> eAlarmType.No) THEN
+            IF isHH THEN
+                CheckAlarms := eAlarmType.HH;
+                RETURN;
+            ELSIF isLL THEN
+                CheckAlarms := eAlarmType.LL;
+                RETURN;
+            ELSIF isH THEN
+                CheckAlarms := eAlarmType.H;
+                RETURN;
+            ELSIF isL THEN
+                CheckAlarms := eAlarmType.L;
+                RETURN;
+            END_IF
+        END_IF
+
+METHOD ScaleValue : REAL
+    CASE mData.RTD.ScaleType OF
+        eScaleType.NaN:         
+            ScaleValue := localIn;
+        eScaleType.dLinear:      
+            ScaleValue := ((localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+        eScaleType.iLinear:      
+            ScaleValue := ((localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+        eScaleType.dQuadratic:   
+            ScaleValue := SQRT(LIMIT(0.0, (localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin), 1.0)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+        eScaleType.iQuadratic:   
+            ScaleValue := SQRT(LIMIT(0.0, (localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax), 1.0)) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin;
+        eScaleType.dExponential: 
+            ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localIn - mData.RTD.XMin) / (mData.RTD.XMax - mData.RTD.XMin), 1.0), 2) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin);
+        eScaleType.iExponential: 
+            ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localIn - mData.RTD.XMax) / (mData.RTD.XMin - mData.RTD.XMax), 1.0), 2) * (mData.RTD.YMax - mData.RTD.YMin) + mData.RTD.YMin);
+        eScaleType.byCoeff:      
+            ScaleValue := localIn * mData.RTD.Coeff; 
+    END_CASE
+
+METHOD Validation
+    (*Сбрасываем стек*)
+        mData.Status.MemoryBranch.Errors := 0;
+
+    (*Проверка корректности конфигурации*)
+        CASE mData.Rtd.ScaleType OF
+            eScaleType.dLinear,
+            eScaleType.iLinear,
+            eScaleType.dQuadratic,
+            eScaleType.iQuadratic,
+            eScaleType.dExponential,
+            eScaleType.iExponential	:
+                                    IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+                                        mData.Status.State.ConfigFault := TRUE;
+                                    END_IF
+            
+            eScaleType.byCoeff :
+                                IF mData.RTD.Coeff <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+                                    mData.Status.State.ConfigFault := TRUE;
+                                END_IF
+            
+            eScaleType.NaN :
+                            IF (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+                                mData.Status.State.ConfigFault := TRUE;
+                            END_IF
+        END_CASE
+        
+        IF mData.RTD.RDD.enFilter AND mData.RTD.TF <= 0.001 THEN
+            mData.Status.State.ConfigFault := TRUE;
+        END_IF
+
+    (*Проверка на обрыв цепи*)
+            IF mData.RawValue >= 3.402823E+38 OR mData.RawValue <= -3.402823E+38 THEN
+                mData.Status.State.ExternalBreak := TRUE;
+            END_IF
+
+    (*Проверка на исправность модуля*)
+        IF mData.ModuleStatus THEN
+            mData.Status.State.ModuleFault := TRUE;
+        END_IF
+
+    (*Проверка на исправность канала*)
+        IF mData.ChStatus THEN
+            mData.Status.State.ChFault := TRUE;
+        END_IF
+
+    (*Проверка границ достоверности*)
+        IF mData.RawValue > mData.RTD.ShortCircuitValue THEN
+            mData.Status.State.ShortCircuit := TRUE;
+        ELSIF mData.RawValue < mData.RTD.BreakValue THEN
+            mData.Status.State.Break := TRUE;
+        END_IF

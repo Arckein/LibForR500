@@ -5,11 +5,12 @@ STRUCT
 	ChStatus		: BOOL;			//Статус с канала (TRUE - Ошибка связи/канала, FALSE - Норма)
 	ModuleStatus	: BOOL;			//Статус с модуля	
 	Command			: eCommand;		//Команды внешнего управления
+	Source			: eCommandSource;
 	RTD				: sRetainAI;	//Хранимые данных
 	
 (*Выходные значения*)
-	RawValue	: REAL;		//Значение в эл.величине (мА)
-	EngValue	: REAL;		//Значение в инж.величине (ед.изм)
+	RawValue	: REAL;				//Значение в эл.величине (мА)
+	EngValue	: REAL;				//Значение в инж.величине (ед.изм)
 	Status		: uSignalStatus;	//Статус сигнала
 END_STRUCT
 END_TYPE
