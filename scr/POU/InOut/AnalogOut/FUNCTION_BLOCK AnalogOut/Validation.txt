@@ -7,10 +7,10 @@ mData.Status.MemoryBranch.Errors := 0;
 CASE mData.RTD.ScaleType OF
 	eScaleType.dLinear,
 	eScaleType.iLinear,
-	eScaleType.dQuadratic,
-	eScaleType.iQuadratic,
-	eScaleType.dExponential,
-	eScaleType.iExponential :
+	eScaleType.dSqrt,
+	eScaleType.iSqrt,
+	eScaleType.dSquare,
+	eScaleType.iSquare :
 							IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
 								mData.Status.State.ConfigFault := TRUE;
 							END_IF

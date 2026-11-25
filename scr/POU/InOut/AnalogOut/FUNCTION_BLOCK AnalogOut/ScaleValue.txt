@@ -12,16 +12,16 @@ CASE mData.RTD.ScaleType OF
     eScaleType.iLinear:      
         ScaleValue := TO_REAL(((localOut - mData.RTD.YMax) / (mData.RTD.YMin - mData.RTD.YMax)) * (mData.RTD.XMax - mData.RTD.XMin) + mData.RTD.XMin);
         
-    eScaleType.dQuadratic:   
+    eScaleType.dSqrt:   
         ScaleValue := TO_REAL(SQRT(LIMIT(0.0, (localOut - mData.RTD.YMin) / (mData.RTD.YMax - mData.RTD.YMin), 1.0)) * (mData.RTD.XMax - mData.RTD.XMin) + mData.RTD.XMin);
         
-    eScaleType.iQuadratic:   
+    eScaleType.iSqrt:   
         ScaleValue := TO_REAL(SQRT(LIMIT(0.0, (localOut - mData.RTD.YMax) / (mData.RTD.YMin - mData.RTD.YMax), 1.0)) * (mData.RTD.XMax - mData.RTD.XMin) + mData.RTD.XMin);
         
-    eScaleType.dExponential: 
+    eScaleType.dSquare: 
         ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localOut - mData.RTD.YMin) / (mData.RTD.YMax - mData.RTD.YMin), 1.0), 2) * (mData.RTD.XMax - mData.RTD.XMin) + mData.RTD.XMin);
         
-    eScaleType.iExponential: 
+    eScaleType.iSquare: 
         ScaleValue := TO_REAL(EXPT(LIMIT(0.0, (localOut - mData.RTD.YMax) / (mData.RTD.YMin - mData.RTD.YMax), 1.0), 2) * (mData.RTD.XMax - mData.RTD.XMin) + mData.RTD.XMin);
         
     eScaleType.byCoeff:      
