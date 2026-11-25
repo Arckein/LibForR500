@@ -1,0 +1,39 @@
+(*
+	Таймер задержки включения библиотеки (замена TON).
+	IN = FALSE		-> Ready, ET = 0
+	IN = TRUE		-> Running, ET копит CycleTime
+	ET >= PT		-> Done, ET = PT; возвращает TRUE
+	PT <= 0			-> Done в первом же цикле с IN = TRUE
+	Сброс: вызов с IN := FALSE.
+	PT - секунды (как TD/TF в retain-данных), CycleTime - мс (sSystemInfo.CycleTime).
+*)
+FUNCTION fTimerOn : BOOL
+VAR_IN_OUT
+	Tmr	: sTimer;	//Таймер (в retain-части объекта)
+END_VAR
+VAR_INPUT
+	IN			: BOOL;	//Вход
+	PT			: REAL;	//Уставка, сек
+	CycleTime	: REAL;	//Время цикла задачи, мс
+END_VAR
+VAR
+	ptMs	: REAL;	//Уставка, мс
+END_VAR
+ptMs	:= MAX(PT * 1000, 0.0);
+
+IF NOT IN THEN
+	Tmr.ET		:= 0.0;
+	Tmr.State	:= eTimerState.Ready;
+ELSE
+	IF Tmr.ET < ptMs THEN
+		Tmr.ET	:= Tmr.ET + CycleTime;
+	END_IF
+	IF Tmr.ET >= ptMs THEN
+		Tmr.ET		:= ptMs;	//Отсчет не растет дальше уставки
+		Tmr.State	:= eTimerState.Done;
+	ELSE
+		Tmr.State	:= eTimerState.Running;
+	END_IF
+END_IF
+
+fTimerOn	:= Tmr.State = eTimerState.Done;

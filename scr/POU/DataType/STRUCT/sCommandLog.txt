@@ -3,5 +3,6 @@ STRUCT
 	Command	: eCommand;
 	Source	: eCommandSource;
 	Value	: REAL;		//Аргумент команды (0 - выкл, <>0 - вкл)
+	Index	: UINT;		//Номер элемента внутри объекта (ключ блокировки и т.п.), 0 - объект целиком
 END_STRUCT
 END_TYPE

@@ -73,7 +73,7 @@ SCADA пишет сначала CmdValue, затем Command.
 	IF NOT Data.RTD.RDD.enEnable THEN
 		Data.EngValue					:= 0.0;
 		Data.RTD.RDD.isFirstPass		:= TRUE;
-		Data.RTD.RDD.alarmTimer			:= 0.0;
+		fTimerOn(Tmr := Data.RTD.RDD.alarmTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		Data.Status.MemoryBranch.Errors	:= 0;
 		Data.Status.State.ActiveAlarm	:= eAlarmType.No;
 
@@ -127,7 +127,7 @@ SCADA пишет сначала CmdValue, затем Command.
 			Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
 		ELSE
 			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
-			Data.RTD.RDD.alarmTimer			:= 0.0;
+			fTimerOn(Tmr := Data.RTD.RDD.alarmTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		END_IF
 	END_IF
 

@@ -18,7 +18,7 @@ STRUCT
 	freezingIn	: REAL;	//Последнее достоверное значение (для режима "Заморозка")
 	filteredIn  : REAL;	//Промежуточное значение после фильтрации
 	isFirstPass : BOOL;	//Первый цикл фильтрации значения
-	alarmTimer  : REAL;	//Текущее значение таймера для сигнализаций
+	alarmTimer  : sTimer;	//Таймер задержки сигнализации
 	
 	Logger	: ARRAY [1..5] OF sCommandLog;
 END_STRUCT
