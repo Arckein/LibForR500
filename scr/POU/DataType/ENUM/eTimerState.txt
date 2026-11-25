@@ -1,0 +1,10 @@
+(*Состояния таймера библиотеки (sTimer / fTimerOn)*)
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE eTimerState :
+(
+	Ready	:= 0,	//Готов к работе (вход не активен, отсчет сброшен)
+	Running	:= 1,	//В работе (идет отсчет)
+	Done	:= 2	//Закончил отсчет
+) UINT;
+END_TYPE

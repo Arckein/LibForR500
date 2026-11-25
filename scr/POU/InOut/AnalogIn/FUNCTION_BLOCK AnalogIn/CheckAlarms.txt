@@ -5,6 +5,7 @@ VAR
 	isH				: BOOL;
 	isL				: BOOL;
 	isLL			: BOOL;
+	isDelayDone		: BOOL;	//Задержка сигнализации отсчитана
 END_VAR
 VAR_IN_OUT
 	mData	: sDataAI;
@@ -56,16 +57,13 @@ END_VAR
 
 (*Реализуем задержку возврата значени*)
 	isActiveAlarm	:= isHH OR isH OR isL OR isLL;
-	IF isActiveAlarm THEN
-		IF mData.RTD.RDD.enDelay THEN
-			mData.RTD.RDD.alarmTimer	:= mData.RTD.RDD.alarmTimer + SysInfo.CycleTime;
-		END_IF
-	ELSE
-		mData.RTD.RDD.alarmTimer := 0;
-	END_IF
-	
+	isDelayDone		:= fTimerOn(Tmr			:= mData.RTD.RDD.alarmTimer,
+								IN			:= isActiveAlarm AND mData.RTD.RDD.enDelay,
+								PT			:= mData.RTD.TD,
+								CycleTime	:= SysInfo.CycleTime);
+
 (*Возвращаем результат*)
-	IF NOT mData.RTD.RDD.enDelay OR (mData.RTD.RDD.alarmTimer >= mData.RTD.TD*1000) OR (mData.Status.State.ActiveAlarm <> eAlarmType.No) THEN
+	IF NOT mData.RTD.RDD.enDelay OR isDelayDone OR (mData.Status.State.ActiveAlarm <> eAlarmType.No) THEN
 		IF isHH THEN
 			CheckAlarms := eAlarmType.HH;
 			RETURN;
