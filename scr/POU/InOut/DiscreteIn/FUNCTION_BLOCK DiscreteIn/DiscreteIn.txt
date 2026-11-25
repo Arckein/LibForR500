@@ -61,7 +61,7 @@ SCADA пишет сначала CmdValue, затем Command.
 	IF NOT Data.RTD.RDD.enEnable THEN
 		Data.EngValue					:= FALSE;
 		Data.RTD.RDD.isFirstPass		:= TRUE;
-		Data.RTD.RDD.alarmTimer			:= 0.0;
+		fTimerOn(Tmr := Data.RTD.RDD.alarmTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		Data.Status.MemoryBranch.Errors	:= 0;
 		Data.Status.State.ActiveAlarm	:= eAlarmType.No;
 
@@ -84,7 +84,7 @@ SCADA пишет сначала CmdValue, затем Command.
 			localIn	:= ApplyFilter(Data);
 		ELSE
 			Data.RTD.RDD.filteredIn		:= localIn;
-			Data.RTD.RDD.filterTimer	:= 0.0;
+			fTimerOn(Tmr := Data.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		END_IF
 
 	(*Формирование значения*)
@@ -105,7 +105,7 @@ SCADA пишет сначала CmdValue, затем Command.
 			Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
 		ELSE
 			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
-			Data.RTD.RDD.alarmTimer			:= 0.0;
+			fTimerOn(Tmr := Data.RTD.RDD.alarmTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		END_IF
 	END_IF
 

@@ -11,9 +11,9 @@ STRUCT
 
 (*Внутренняя память*)
 	filteredIn	: BOOL;	//Отфильтрованное значение
-	filterTimer	: REAL;	//Таймер для фильтрации, мс
+	filterTimer	: sTimer;	//Таймер антидребезга
 	isFirstPass	: BOOL;	//Старт фильтра: принять текущее значение без задержки
-	alarmTimer	: REAL;	//Таймер задержки сигнализации, мс
+	alarmTimer	: sTimer;	//Таймер задержки сигнализации
 
 	Logger	: ARRAY [1..5] OF sCommandLog;	//5 последних команд, [1] - последняя
 END_STRUCT

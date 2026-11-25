@@ -6,31 +6,26 @@ END_VAR
 Принимаем текущее значение без задержки*)
 	IF SysInfo.isInit OR SysInfo.isColdStart OR mData.RTD.RDD.isFirstPass THEN
 		mData.RTD.RDD.filteredIn	:= localIn;
-		mData.RTD.RDD.filterTimer	:= 0.0;
 		mData.RTD.RDD.isFirstPass	:= FALSE;
+		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		ApplyFilter					:= localIn;
 		RETURN;
 	END_IF
 (*Защита от нулевого времени фильтра*)
 	IF mData.RTD.TF <= 0.001 THEN
 		mData.RTD.RDD.filteredIn	:= localIn;
-		mData.RTD.RDD.filterTimer	:= 0.0;
+		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 		ApplyFilter					:= localIn;
 		RETURN;
 	END_IF
 
-(*Если текущий сигнал не соответствует последнему значению сохраненному в фильтре*)
-	IF localIn <> mData.RTD.RDD.filteredIn THEN
-	(*Пускаем таймер (CycleTime - мс, TF - сек)*)
-		mData.RTD.RDD.filterTimer := mData.RTD.RDD.filterTimer + SysInfo.CycleTime;
-	(*По истечению таймера формируем отфильтрованное значение*)
-		IF mData.RTD.RDD.filterTimer >= (mData.RTD.TF*1000) THEN
-			mData.RTD.RDD.filteredIn	:= localIn;
-			mData.RTD.RDD.filterTimer	:= 0.0;
-		END_IF
-(*Если текущий сигнал соответствует последнему значению сохраненному в фильтре*)
-	ELSE
-	(*Сбрасываем таймер*)
-		mData.RTD.RDD.filterTimer	:= 0.0;
+(*Антидребезг: новое значение принимается, если оно держится не меньше TF.
+Таймер идет, пока вход отличается от отфильтрованного значения, и сбрасывается при совпадении*)
+	IF fTimerOn(Tmr			:= mData.RTD.RDD.filterTimer,
+				IN			:= localIn <> mData.RTD.RDD.filteredIn,
+				PT			:= mData.RTD.TF,
+				CycleTime	:= SysInfo.CycleTime) THEN
+		mData.RTD.RDD.filteredIn	:= localIn;
+		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
 	END_IF
 ApplyFilter	:= mData.RTD.RDD.filteredIn;

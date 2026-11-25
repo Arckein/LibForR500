@@ -1,22 +1,19 @@
 METHOD CheckAlarms : eAlarmType
 VAR
+	isAlarmLevel	: BOOL;	//Значение в аварийном состоянии
+	isDelayDone		: BOOL;	//Задержка сигнализации отсчитана
 END_VAR
 VAR_IN_OUT
 	mData	: sDataDI;
 END_VAR
-CheckAlarms	:= eAlarmType.No;
+isAlarmLevel	:= mData.EngValue = mData.RTD.AlarmLevel;
+isDelayDone		:= fTimerOn(Tmr			:= mData.RTD.RDD.alarmTimer,
+							IN			:= isAlarmLevel AND mData.RTD.RDD.enDelay,
+							PT			:= mData.RTD.TD,
+							CycleTime	:= SysInfo.CycleTime);
 
-IF mData.EngValue = mData.RTD.AlarmLevel THEN
-	IF mData.RTD.RDD.enDelay THEN
-		mData.RTD.RDD.alarmTimer := mData.RTD.RDD.alarmTimer + SysInfo.CycleTime;
-		IF  mData.RTD.RDD.alarmTimer >= (mData.RTD.TD * 1000) THEN
-			CheckAlarms := eAlarmType.Yes;
-		END_IF
-	ELSE
-		CheckAlarms 				:= eAlarmType.Yes;
-		mData.RTD.RDD.alarmTimer	:= 0.0;
-	END_IF
+IF isAlarmLevel AND (NOT mData.RTD.RDD.enDelay OR isDelayDone) THEN
+	CheckAlarms	:= eAlarmType.Yes;
 ELSE
-	CheckAlarms 				:= eAlarmType.No;
-	mData.RTD.RDD.alarmTimer	:= 0.0;
+	CheckAlarms	:= eAlarmType.No;
 END_IF
