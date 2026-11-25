@@ -1,64 +1,91 @@
 FUNCTION_BLOCK Lock
 VAR_INPUT
-	SysInfo	: sSystemInfo;
+	SysInfo	: sSystemInfo;	//Информация о ПЛК
 END_VAR
 VAR_IN_OUT
-	Data	: sDataLock;
-	rData	: sRetainLock;
+	Data	: sDataLock;	//Контейнер данных
+	rData	: sRetainLock;	//Контейнер retain-данных
 END_VAR
 VAR
-	i : UINT;
+	i			: UINT;	//Счетчик
+	isCmdOn		: BOOL;	//Аргумент команды: TRUE - включить, FALSE - выключить
+	firstTrip	: INT;	//Сработавший ключ с меньшим номером в текущем цикле
 END_VAR
-(*Синхронизация памяти*)
-	SyncMemory();
+(*
+	Набор технологических блокировок одного механизма.
+	Ключи 1..8 - запрет активации (открытия / запуска), 9..16 - запрет деактивации (закрытия / остановки).
+	Блокировка не самоудерживается: условие пропало - ключ отпустил.
+	Первопричина фиксируется до команды Reset и на запреты не влияет.
 
-FOR i := 1 TO 16 DO
-	(*Обработка команд внешнего управления*)
-		CASE Data.Item[i].Command OF
-			eCommand.Enable	: Data.Item[i].RTD.RDD.enEnable	:= NOT Data.Item[i].RTD.RDD.enEnable; 
+	Правило: экземпляр ФБ не хранит состояния между вызовами, состояние - только в Data/rData.
+	Внутри тела нет RETURN: SyncOut обязан выполняться в каждом цикле.
+*)
+
+(*Синхронизация памяти - чтение*)
+	SyncIn();
+
+(*Обработка команд внешнего управления.
+SCADA пишет CmdValue и CmdIndex, затем Command. Ведомый команды не исполняет*)
+	IF NOT SysInfo.RDD_Standby AND Data.Command <> eCommand.None THEN
+		isCmdOn	:= Data.CmdValue <> 0.0;
+		CASE Data.Command OF
+			eCommand.Reset:
+				IF Data.CmdIndex = 0 THEN
+					Data.RDD.FirstIndex	:= 0;
+				END_IF
+			eCommand.Enable:
+				IF Data.CmdIndex >= 1 AND Data.CmdIndex <= 16 THEN
+					Data.Item[Data.CmdIndex].RTD.RDD.enEnable	:= isCmdOn;
+				END_IF
 		END_CASE
-		Data.Item[i].Command	:= eCommand.None;
-	(*Конфигурирование таймера*)
-		Data.Item[i].RTD.RDD.fbDelay (
-								IN	:= Data.Item[i].Condition,
-								PT	:= TO_TIME(Data.Item[i].RTD.TD*1000)
-								);
-	(*Основная логика*)
-		(*Блокировка включена*)
-			IF NOT Data.Item[i].RTD.RDD.enEnable THEN
-				Data.Item[i].Trip	:= Data.Item[i].RTD.RDD.fbDelay.Q;
-				(*Рассчитываем оставшееся время*)
-					IF Data.Item[i].Condition AND NOT Data.Item[i].Trip THEN
-						Data.Item[i].TimeLeft	:= TO_REAL(Data.Item[i].RTD.RDD.fbDelay.PT - Data.Item[i].RTD.RDD.fbDelay.ET) / 1000;
-					ELSE
-						Data.Item[i].TimeLeft	:= 0;
-					END_IF
-			
-		(*Блокировка отключена*)
-			ELSE
-				Data.Item[i].Trip	:= FALSE;	//Сбрасываем сработку
-			
-				Data.Item[i].RTD.RDD.fbDelay	(IN	:= FALSE);	//Сбрасываем таймер
-				Data.Item[i].TimeLeft			:= 0;			//Сбрасываем обратный отсчет
-			END_IF
-END_FOR
+	(*Логирование: сдвиг истории от новых к старым, [1] - последняя команда*)
+		FOR i := 5 TO 2 BY -1 DO
+			Data.RDD.Logger[i]	:= Data.RDD.Logger[i-1];
+		END_FOR
+		Data.RDD.Logger[1].Command	:= Data.Command;
+		Data.RDD.Logger[1].Source	:= Data.Source;
+		Data.RDD.Logger[1].Value	:= Data.CmdValue;
+		Data.RDD.Logger[1].Index	:= Data.CmdIndex;
+	END_IF
+(*Сброс интерфейса управления*)
+	Data.Command	:= eCommand.None;
+	Data.Source		:= eCommandSource.None;
+	Data.CmdIndex	:= 0;
 
-(*Агрегация*)
-	(*Первопричина*)
-		IF Data.Item[i].Trip THEN;
-			Data.FirstIndex	:= TO_INT(i);
+(*Обработка ключей*)
+	Data.isLockActivate		:= FALSE;
+	Data.isLockDeactivate	:= FALSE;
+	firstTrip				:= 0;
+	FOR i := 1 TO 16 DO
+	(*Сработка - по истечении задержки, только у ключа в работе*)
+		Data.Item[i].Trip	:= fTimerOn(Tmr			:= Data.Item[i].RTD.RDD.Delay,
+										IN			:= Data.Item[i].Condition AND Data.Item[i].RTD.RDD.enEnable,
+										PT			:= Data.Item[i].RTD.TD,
+										CycleTime	:= SysInfo.CycleTime);
+	(*Обратный отсчет до сработки*)
+		IF Data.Item[i].RTD.RDD.Delay.State = eTimerState.Running THEN
+			Data.Item[i].TimeLeft	:= Data.Item[i].RTD.TD - Data.Item[i].RTD.RDD.Delay.ET / 1000;
+		ELSE
+			Data.Item[i].TimeLeft	:= 0.0;
 		END_IF
-	(*Запрет активации*)
-		Data.isLockActivate	:= FALSE;
-		FOR i := 1 TO 8 DO
-			IF Data.Item[i].Trip THEN
-				Data.isLockActivate	:= TRUE;	
+	(*Агрегация запретов*)
+		IF Data.Item[i].Trip THEN
+			IF i <= 8 THEN
+				Data.isLockActivate		:= TRUE;
+			ELSE
+				Data.isLockDeactivate	:= TRUE;
 			END_IF
-		END_FOR
-	(*Запрет деактивации*)
-		Data.isLockDeactivate	:= FALSE;
-		FOR i := 9 TO 16 DO
-			IF Data.Item[i].Trip THEN
-				Data.isLockDeactivate	:= TRUE;	
+			IF firstTrip = 0 THEN
+				firstTrip	:= TO_INT(i);
 			END_IF
-		END_FOR
+		END_IF
+	END_FOR
+
+(*Первопричина: фиксируется первый сработавший ключ (при одновременной сработке - меньший номер)*)
+	IF Data.RDD.FirstIndex = 0 THEN
+		Data.RDD.FirstIndex	:= firstTrip;
+	END_IF
+	Data.FirstIndex	:= Data.RDD.FirstIndex;
+
+(*Синхронизация памяти - запись*)
+	SyncOut();

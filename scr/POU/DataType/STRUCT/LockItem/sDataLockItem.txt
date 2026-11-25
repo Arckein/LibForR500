@@ -1,12 +1,11 @@
 TYPE sDataLockItem :
 STRUCT
 (*Входные значения*)
-	Condition	: BOOL;				//Входное условие
-	Command		: eCommand;			//Команда
+	Condition	: BOOL;				//Входное условие (формирует прикладная программа)
 	RTD			: sRetainLockItem;	//Хранимые данные
 
 (*Выходные значения*)
 	Trip		: BOOL;	//Сработка ключа
-	TimeLeft	: REAL;	//Отсчет до сработки
+	TimeLeft	: REAL;	//Отсчет до сработки, сек
 END_STRUCT
 END_TYPE

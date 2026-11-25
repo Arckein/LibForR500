@@ -1,12 +1,16 @@
 TYPE sDataLock :
 STRUCT
 (*Входные значения*)
-	Item	: ARRAY [1..16] OF sDataLockItem;
-	Command	: eCommand;
-	
+	Item		: ARRAY [1..16] OF sDataLockItem;	//Ключи: 1..8 - запрет активации, 9..16 - запрет деактивации
+	Command		: eCommand;			//Reset - сброс первопричины (CmdIndex = 0); Enable - ввод/вывод ключа CmdIndex
+	CmdValue	: REAL;				//Аргумент команды: 0 - выкл, <>0 - вкл (писать ДО Command)
+	CmdIndex	: UINT;				//0 - набор целиком, 1..16 - номер ключа (писать ДО Command)
+	Source		: eCommandSource;	//Источник команды
+	RDD			: sRedundancyLock;	//Хранимые данные набора
+
 (*Выходные значения*)
-	isLockActivate		: BOOL;			//Блокировка активации (открытия / запуска)
-	isLockDeactivate	: BOOL;			//Блокировка деактивации (закрытия / остановки)
-	FirstIndex			: INT;			//Первопричина
+	isLockActivate		: BOOL;	//Блокировка активации (открытия / запуска)
+	isLockDeactivate	: BOOL;	//Блокировка деактивации (закрытия / остановки)
+	FirstIndex			: INT;	//Первопричина (копия RDD.FirstIndex)
 END_STRUCT
 END_TYPE

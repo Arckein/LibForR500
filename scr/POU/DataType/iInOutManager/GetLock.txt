@@ -1,0 +1,7 @@
+METHOD GetLock : POINTER TO sDataLock
+VAR_INPUT
+	ID	: UINT;	//Индекс из массива Lock
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;	//Флаг корректной привязки
+END_VAR

@@ -1,5 +1,6 @@
 TYPE sRetainLock :
 STRUCT
-	Item	: ARRAY [1..16] OF sRetainLockItem;
+	Item	: ARRAY [1..16] OF sRetainLockItem;	//Хранимые данные ключей
+	RDD		: sRedundancyLock;					//Хранимые данные набора
 END_STRUCT
 END_TYPE

@@ -9,7 +9,7 @@ END_VAR
 IF ID = 0 THEN
 (*Элемент не используется*)
 	GetAO	:= 0;
-ELSIF ID > 0 AND ID <= SysInfo.SizeAO THEN
+ELSIF ID <= SIZEOF(IO.AnalogOut) / SIZEOF(IO.AnalogOut[1]) THEN
 (*Элемент используется и индекс корректен*)
 	GetAO	:= ADR(IO.AnalogOut[ID]);
 ELSE

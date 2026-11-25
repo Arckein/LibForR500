@@ -1,0 +1,19 @@
+METHOD GetLock : POINTER TO sDataLock
+VAR_INPUT
+	(*Индекс из массива Lock*)
+	ID	: UINT;
+END_VAR
+VAR_IN_OUT
+	isValid	: BOOL;
+END_VAR
+IF ID = 0 THEN
+(*Элемент не используется*)
+	GetLock	:= 0;
+ELSIF ID <= SIZEOF(IO.Lock) / SIZEOF(IO.Lock[1]) THEN
+(*Элемент используется и индекс корректен*)
+	GetLock	:= ADR(IO.Lock[ID]);
+ELSE
+(*Элемент используется, но индекс не корректен*)
+	GetLock	:= 0;
+	isValid	:= FALSE;
+END_IF

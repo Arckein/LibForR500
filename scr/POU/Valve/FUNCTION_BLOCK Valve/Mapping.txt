@@ -21,7 +21,7 @@ END_IF
 	mData.pPowerState	:= InOutManager.GetDI(mData.RTD.idPowerState, InputMapValid);	//Состояние опер.цепей
 
 (*Читаем защиты и блокировки*)
-	mData.pLock	:= InOutManager.GetDI(mData.RTD.idLock, ProtectMapValid);	//ФБ "Блокировка"
+	mData.pLock	:= InOutManager.GetLock(mData.RTD.idLock, ProtectMapValid);	//ФБ "Блокировка"
 
 (*Читаем контур управления*)
 	mData.pOpenCMD	:= InOutManager.GetDO(mData.RTD.idOpenCMD, OutputManValid);		//Пускатель "Открыть"

@@ -14,6 +14,7 @@ STRUCT
 	SizeDI		: UINT;	//размер массива DI
 	SizeAO		: UINT;	//размер массива AO
 	SizeDO		: UINT;	//размер массива DO
+	SizeLock	: UINT;	//размер массива Lock
 	SizeValve	: UINT;	//размер массива Valve
 END_STRUCT
 END_TYPE

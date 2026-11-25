@@ -1,0 +1,11 @@
+(*Синхронизация памяти - ЧТЕНИЕ. Вызывается В НАЧАЛЕ ФБ.
+Ведомый, холодный старт и первый цикл нового ведущего забирают состояние из retain-памяти*)
+	IF SysInfo.isInit THEN
+	(*Первая загрузка проекта: Data уже заполнен начальными параметрами, читать нечего*)
+		;
+	ELSIF SysInfo.isColdStart OR SysInfo.RDD_Standby OR SysInfo.RDD_Switched THEN
+		FOR i := 1 TO 16 DO
+			Data.Item[i].RTD	:= rData.Item[i];
+		END_FOR
+		Data.RDD	:= rData.RDD;
+	END_IF

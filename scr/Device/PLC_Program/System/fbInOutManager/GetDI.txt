@@ -9,7 +9,7 @@ END_VAR
 IF ID = 0 THEN
 (*Элемент не используется*)
 	GetDI	:= 0;
-ELSIF ID > 0 AND ID <= SysInfo.SizeDI THEN
+ELSIF ID <= SIZEOF(IO.DiscreteIn) / SIZEOF(IO.DiscreteIn[1]) THEN
 (*Элемент используется и индекс корректен*)
 	GetDI	:= ADR(IO.DiscreteIn[ID]);
 ELSE
