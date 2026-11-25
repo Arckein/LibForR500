@@ -29,7 +29,7 @@ END_VAR
 		END_CASE
 	ELSE 
 	(*Физический ключ, управляется по состоянию канала*)
-		IF pKeyOfLCP^.EngValue AND (pKeyOfLCP^.Status.MemoryBranch.Errors = 0) THEN
+		IF pKeyOfLCP^.EngValue AND fSignalValid(pKeyOfLCP^.Status) THEN
 			Status.State.Remote	:= TRUE;
 			Status.State.Local	:= FALSE;
 		ELSE

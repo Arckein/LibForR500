@@ -1,17 +1,20 @@
-TYPE sRedundancyDI :  
+TYPE sRedundancyDI :
 STRUCT
 	ImitVal	: BOOL;	//Значение для режима имитации
 
-	enEnable	: BOOL := TRUE;	//Обработка включена  
-	enImit		: BOOL;			//Имитация включена  
+	enEnable	: BOOL := TRUE;	//Обработка включена
+	enImit		: BOOL;			//Имитация включена
 	enFilter	: BOOL;			//Фильтрация включена
 	enInvert	: BOOL;			//Инверсия сигнала включена
 	enAlarmMode	: BOOL;			//Сигнализация включена
-	enDelay		: BOOL;			//Задержка сигнализации включена 
-	enRepair	: BOOL;			//Режим ремонт
-	
+	enDelay		: BOOL;			//Задержка сигнализации включена
+
+(*Внутренняя память*)
 	filteredIn	: BOOL;	//Отфильтрованное значение
-	filterTimer	: REAL;	//Таймер для фильтрации
-	alarmTimer	: REAL;	//Таймер задержки сигнализации  
-END_STRUCT  
+	filterTimer	: REAL;	//Таймер для фильтрации, мс
+	isFirstPass	: BOOL;	//Старт фильтра: принять текущее значение без задержки
+	alarmTimer	: REAL;	//Таймер задержки сигнализации, мс
+
+	Logger	: ARRAY [1..5] OF sCommandLog;	//5 последних команд, [1] - последняя
+END_STRUCT
 END_TYPE

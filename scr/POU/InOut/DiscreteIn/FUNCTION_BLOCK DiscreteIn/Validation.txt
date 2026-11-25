@@ -6,3 +6,9 @@ END_VAR
 	mData.Status.MemoryBranch.Errors	:= 0;
 	mData.Status.State.ModuleFault		:= mData.ModuleStatus;
 	mData.Status.State.ChFault			:= mData.ChStatus;
+
+(*Фильтр без постоянной времени - это не неисправность датчика.
+Выключаем фильтр, статус "Фильтрация" покажет фактическое состояние*)
+	IF mData.RTD.RDD.enFilter AND mData.RTD.TF <= 0.001 THEN
+		mData.RTD.RDD.enFilter	:= FALSE;
+	END_IF

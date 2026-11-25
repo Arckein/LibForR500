@@ -3,6 +3,14 @@ VAR
 	newDI	: DiscreteIn;
 	lenDI	: UINT;
 END_VAR
+(*
+	Привязка каналов DI (Regul R500, DI 32 012/013).
+	Источник: Системное руководство R500, DPA-311 v2.40, Прил. Г, табл. Г.1, Г.3 (регистры данных DI).
+	ChStatus	- PS = 0: питание обеих внутренних шин вне допуска (бит 0 - шина 1, бит 1 - шина 2;
+				  1 - в допуске), каналы модуля не работают. Поканальной диагностики у DI 32 нет.
+				  PS = 1 или 2 - потеря одной шины (резерв питания), каналы работают.
+	ModuleStatus	- флаг аппаратной ошибки модуля (HW).
+*)
 IO.DiscreteIn[eDI.ReservDI1].In				:= C1M4ch.0;
 IO.DiscreteIn[eDI.ReservDI1].ChStatus		:= C1M4PS = 0;
 IO.DiscreteIn[eDI.ReservDI1].ModuleStatus	:= C1M4HW;

@@ -7,87 +7,114 @@ VAR_IN_OUT
 	rData	: sRetainDI;	//Контейнер retain-данных
 END_VAR
 VAR
-	localIn	: BOOL;	//Буферизированное значение
+	localIn		: BOOL;	//Буферизированное значение
+	i			: UINT;	//Счетчик
+	isValidIn	: BOOL;	//Канал исправен в текущем цикле
+	isCmdOn		: BOOL;	//Аргумент команды: TRUE - включить, FALSE - выключить
 END_VAR
-(*Синхронизация памяти*)
-	SyncMemory();
+(*
+	Правило: экземпляр ФБ не хранит состояния между вызовами.
+	Все переменные VAR пересчитываются до чтения, состояние - только в Data/rData.
+	Внутри тела нет RETURN: SyncOut обязан выполняться в каждом цикле.
+*)
+
+(*Синхронизация памяти - чтение*)
+	SyncIn();
 
 (*Буферизация входных данных*)
 	localIn			:= Data.In;
 	Data.RawValue	:= localIn;
 
-(*Обработка команд внешнего управления*)
-	CASE Data.Command OF
-		eCommand.Enable:
-			Data.RTD.RDD.enEnable		:= NOT Data.RTD.RDD.enEnable;
-		eCommand.Imit:
-			Data.RTD.RDD.enImit			:= NOT Data.RTD.RDD.enImit;
-		eCommand.Filter:
-			Data.RTD.RDD.enFilter		:= NOT Data.RTD.RDD.enFilter;
-		eCommand.AlarmMode:
-			Data.RTD.RDD.enAlarmMode	:= NOT Data.RTD.RDD.enAlarmMode;
-		eCommand.Delay:
-			Data.RTD.RDD.enDelay		:= NOT Data.RTD.RDD.enDelay;
-		eCommand.Invert:
-			Data.RTD.RDD.enInvert		:= NOT Data.RTD.RDD.enInvert;
-		eCommand.Repair:
-			Data.RTD.RDD.enRepair		:= NOT Data.RTD.RDD.enRepair;
-	END_CASE
+(*Обработка команд внешнего управления.
+Команда + аргумент: повторная запись дает тот же результат.
+SCADA пишет сначала CmdValue, затем Command.
+Ведомый команды не исполняет - состояние придет с ведущего*)
+	IF NOT SysInfo.RDD_Standby AND Data.Command <> eCommand.None THEN
+		isCmdOn	:= Data.CmdValue <> 0.0;
+		CASE Data.Command OF
+			eCommand.Enable:
+				Data.RTD.RDD.enEnable		:= isCmdOn;
+			eCommand.Imit:
+				Data.RTD.RDD.enImit			:= isCmdOn;
+			eCommand.Filter:
+				Data.RTD.RDD.enFilter		:= isCmdOn;
+			eCommand.AlarmMode:
+				Data.RTD.RDD.enAlarmMode	:= isCmdOn;
+			eCommand.Delay:
+				Data.RTD.RDD.enDelay		:= isCmdOn;
+			eCommand.Invert:
+				Data.RTD.RDD.enInvert		:= isCmdOn;
+		END_CASE
+	(*Логирование: сдвиг истории от новых к старым, [1] - последняя команда*)
+		FOR i := 5 TO 2 BY -1 DO
+			Data.RTD.RDD.Logger[i]	:= Data.RTD.RDD.Logger[i-1];
+		END_FOR
+		Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+		Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+		Data.RTD.RDD.Logger[1].Value	:= Data.CmdValue;
+	END_IF
+(*Сброс интерфейса управления*)
 	Data.Command	:= eCommand.None;
-	(*Упаковка состояний режимов*)
-		Data.Status.State.Disabled	:= NOT Data.RTD.RDD.enEnable;
-		Data.Status.State.Imitation	:= Data.RTD.RDD.enImit;
-		Data.Status.State.Filter	:= Data.RTD.RDD.enFilter;
-		Data.Status.State.Invert	:= Data.RTD.RDD.enInvert;
-		Data.Status.State.AlarmMode	:= Data.RTD.RDD.enAlarmMode;
-		Data.Status.State.Repair	:= Data.RTD.RDD.enRepair;
+	Data.Source		:= eCommandSource.None;
+
+(*Основная логика - выкл (резервный канал: обработка не выполняется)*)
+	IF NOT Data.RTD.RDD.enEnable THEN
+		Data.EngValue					:= FALSE;
+		Data.RTD.RDD.isFirstPass		:= TRUE;
+		Data.RTD.RDD.alarmTimer			:= 0.0;
+		Data.Status.MemoryBranch.Errors	:= 0;
+		Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+
 (*Основная логика - вкл*)
-	IF Data.RTD.RDD.enEnable THEN
-	(*Валидация*)
+	ELSE
+	(*Валидация. Ошибки канала показываются ВСЕГДА, в т.ч. в имитации*)
 		Validation(Data);
-	(*Имитация*)
-		IF Data.RTD.RDD.enImit THEN
-			Data.EngValue					:= Data.RTD.RDD.ImitVal;
-			Data.Status.MemoryBranch.Errors	:= 0;
-			(*Вычисляем сигнализацию*)
-				IF Data.RTD.RDD.enAlarmMode THEN
-					Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
-				ELSE
-					Data.Status.State.ActiveAlarm	:= eAlarmType.No;	
-				END_IF
-	(*Нормальная работа*)
-		ELSIF Data.Status.MemoryBranch.Errors = 0 THEN
-		(*Инверсия сигнала*)
-			IF Data.RTD.RDD.enInvert THEN 
-				localIn	:= NOT localIn; 
-			END_IF
-		(*Фильтрация*)
-			IF Data.RTD.RDD.enFilter THEN
-				localIn	:= ApplyFilter(Data);
-			ELSE
-				Data.RTD.RDD.filteredIn		:= localIn;
-				Data.RTD.RDD.filterTimer	:= 0.0;
-			END_IF
-		Data.EngValue	:= localIn;
-		(*Записываем значение для безударного перехода в Имитацию*)
-			Data.RTD.RDD.ImitVal	:= Data.EngValue;
-		(*Вычисление сигнализаций*)
-			IF Data.RTD.RDD.enAlarmMode AND NOT Data.RTD.RDD.enRepair THEN
-				Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
-			ELSE
-				Data.Status.State.ActiveAlarm	:= eAlarmType.No;
-				Data.RTD.RDD.alarmTimer			:= 0.0;
-			END_IF
-	(*Ошибка датчика*)
+		isValidIn	:= Data.Status.MemoryBranch.Errors = 0;
+
+	(*Инверсия - приведение физического контакта (NO/NC) к логическому значению*)
+		IF Data.RTD.RDD.enInvert THEN
+			localIn	:= NOT localIn;
+		END_IF
+
+	(*Фильтрация (антидребезг) - только по исправному каналу.
+	При ошибке канала фильтр перезапускается: после восстановления принимает текущее значение без задержки*)
+		IF NOT isValidIn THEN
+			Data.RTD.RDD.isFirstPass	:= TRUE;
+		ELSIF Data.RTD.RDD.enFilter THEN
+			localIn	:= ApplyFilter(Data);
 		ELSE
-			Data.EngValue					:= FALSE;
+			Data.RTD.RDD.filteredIn		:= localIn;
+			Data.RTD.RDD.filterTimer	:= 0.0;
+		END_IF
+
+	(*Формирование значения*)
+		IF Data.RTD.RDD.enImit THEN
+		(*Имитация: значение задает оператор*)
+			Data.EngValue	:= Data.RTD.RDD.ImitVal;
+		ELSIF isValidIn THEN
+		(*Нормальная работа*)
+			Data.EngValue			:= localIn;
+			Data.RTD.RDD.ImitVal	:= Data.EngValue;	//Для безударного перехода в Имитацию
+		ELSE
+		(*Ошибка канала*)
+			Data.EngValue	:= FALSE;
+		END_IF
+
+	(*Сигнализации: в имитации - всегда (проверка логики), в работе - только по исправному каналу*)
+		IF Data.RTD.RDD.enAlarmMode AND (Data.RTD.RDD.enImit OR isValidIn) THEN
+			Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
+		ELSE
 			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
 			Data.RTD.RDD.alarmTimer			:= 0.0;
 		END_IF
-(*Основная логика - выкл*)
-	ELSE
-	Data.EngValue					:= FALSE;
-	Data.RTD.RDD.alarmTimer			:= 0.0;
-	Data.Status.MemoryBranch.Errors	:= 0;
-	Data.Status.State.ActiveAlarm	:= eAlarmType.No;
-END_IF
+	END_IF
+
+(*Упаковка состояний режимов - после обработки, чтобы статус отражал итог цикла*)
+	Data.Status.State.Disabled	:= NOT Data.RTD.RDD.enEnable;
+	Data.Status.State.Imitation	:= Data.RTD.RDD.enImit;
+	Data.Status.State.Filter	:= Data.RTD.RDD.enFilter;
+	Data.Status.State.Invert	:= Data.RTD.RDD.enInvert;
+	Data.Status.State.AlarmMode	:= Data.RTD.RDD.enAlarmMode;
+
+(*Синхронизация памяти - запись*)
+	SyncOut();

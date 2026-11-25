@@ -4,6 +4,8 @@ TYPE sDataDI : STRUCT
 	ChStatus		: BOOL;			//Статус канала (TRUE - Ошибка)
 	ModuleStatus	: BOOL;			//Статус модуля (TRUE - Ошибка)
 	Command			: eCommand;		//Команды внешнего управления
+	CmdValue		: REAL;			//Аргумент команды: 0 - выкл, <>0 - вкл (писать ДО Command)
+	Source			: eCommandSource;	//Источник команды
 	RTD				: sRetainDI;	//Хранимые данные
 
 (*Выходные значения*)
