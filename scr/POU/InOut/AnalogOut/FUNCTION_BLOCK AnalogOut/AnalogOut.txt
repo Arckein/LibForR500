@@ -7,50 +7,81 @@ VAR_IN_OUT
 	rData	: sRetainAO;	//Контейнер retain-данных
 END_VAR
 VAR
-	localOut	: REAL;	//Буферизированноые значение "Команда от логики управления"
+	localOut	: REAL;	//Буферизированное значение "Команда от логики управления"
+	i			: UINT;	//Счетчик
+	isCmdOn		: BOOL;	//Аргумент команды: TRUE - включить, FALSE - выключить
 END_VAR
-(*Синхронизация памяти*)
-	SyncMemory();
-(*Буферизация входных данных*)
+(*
+	Правило: экземпляр ФБ не хранит состояния между вызовами.
+	Все переменные VAR пересчитываются до чтения, состояние - только в Data/rData.
+	Внутри тела нет RETURN: SyncOut обязан выполняться в каждом цикле.
+
+	Имитация для выхода = ручное задание выхода оператором (ImitVal, инж.ед).
+	Команда от логики управления (EngValue) в этом режиме игнорируется.
+*)
+
+(*Синхронизация памяти - чтение*)
+	SyncIn();
+
+(*Буферизация команды от логики управления*)
 	localOut	:= Data.EngValue;
-(*Обработка команд внешнего управления*)
-	CASE Data.Command OF
-		eCommand.Enable:
-			Data.RTD.RDD.enEnable	:= NOT Data.RTD.RDD.enEnable;
-		eCommand.Imit:
-			Data.RTD.RDD.enImit		:= NOT Data.RTD.RDD.enImit;
-		eCommand.Repair:
-			Data.RTD.RDD.enRepair	:= NOT Data.RTD.RDD.enRepair;
-	END_CASE
-	Data.Command	:= eCommand.None; 
-	(*Упаковка состояний режимов*)
-		Data.Status.MemoryBranch.Mode	:= 0;
-		Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
-		Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;
-		Data.Status.State.Repair		:= Data.RTD.RDD.enRepair;
-(*Основная логика - вкл*)
-	IF Data.RTD.RDD.enEnable THEN
-	(*Валидация*)
-		Validation(Data);
-	(*Ошибка оборудования*)
-		IF Data.Status.MemoryBranch.Errors <> 0 THEN
-			Data.Out := 0.0; 
-	(*Имитация*)
-		ELSIF Data.RTD.RDD.enImit THEN
-			localOut := LIMIT(Data.RTD.YMin, Data.RTD.RDD.ImitVal, Data.RTD.YMax);
-			Data.Out := ScaleValue(Data);
-	(*Нормальная работа*)
-		ELSE
-			localOut := LIMIT(Data.RTD.YMin, localOut, Data.RTD.YMax);
-			(*Записываем значение для безударного перехода в режим "Имитация"*)
-				Data.RTD.RDD.ImitVal	:= localOut;
-			Data.Out := ScaleValue(mData := Data);
-		END_IF
-(*Очновная логика - выкл*)
-	ELSE
+
+(*Обработка команд внешнего управления.
+Команда + аргумент: повторная запись дает тот же результат.
+SCADA пишет сначала CmdValue, затем Command.
+Ведомый команды не исполняет - состояние придет с ведущего*)
+	IF NOT SysInfo.RDD_Standby AND Data.Command <> eCommand.None THEN
+		isCmdOn	:= Data.CmdValue <> 0.0;
+		CASE Data.Command OF
+			eCommand.Enable:
+				Data.RTD.RDD.enEnable	:= isCmdOn;
+			eCommand.Imit:
+				Data.RTD.RDD.enImit		:= isCmdOn;
+		END_CASE
+	(*Логирование: сдвиг истории от новых к старым, [1] - последняя команда*)
+		FOR i := 5 TO 2 BY -1 DO
+			Data.RTD.RDD.Logger[i]	:= Data.RTD.RDD.Logger[i-1];
+		END_FOR
+		Data.RTD.RDD.Logger[1].Command	:= Data.Command;
+		Data.RTD.RDD.Logger[1].Source	:= Data.Source;
+		Data.RTD.RDD.Logger[1].Value	:= Data.CmdValue;
+	END_IF
+(*Сброс интерфейса управления*)
+	Data.Command	:= eCommand.None;
+	Data.Source		:= eCommandSource.None;
+
+(*Основная логика - выкл (резервный канал: обработка не выполняется)*)
+	IF NOT Data.RTD.RDD.enEnable THEN
 		Data.Out						:= 0.0;
 		Data.Status.MemoryBranch.Errors	:= 0;
+
+(*Основная логика - вкл*)
+	ELSE
+	(*Валидация*)
+		Validation(Data);
+	(*Ошибка оборудования или конфигурации - сигнал снимается*)
+		IF Data.Status.MemoryBranch.Errors <> 0 THEN
+			Data.Out	:= 0.0;
+		ELSE
+			IF Data.RTD.RDD.enImit THEN
+			(*Имитация: выход задает оператор*)
+				localOut	:= LIMIT(Data.RTD.YMin, Data.RTD.RDD.ImitVal, Data.RTD.YMax);
+			ELSE
+			(*Нормальная работа: выход задает логика управления*)
+				localOut				:= LIMIT(Data.RTD.YMin, localOut, Data.RTD.YMax);
+				Data.RTD.RDD.ImitVal	:= localOut;	//Для безударного перехода в Имитацию
+			END_IF
+			Data.Out	:= ScaleValue(Data);
+		END_IF
 	END_IF
 
-// Выходной блок не генерирует аварий процесса
-Data.Status.State.ActiveAlarm := eAlarmType.No;
+(*Выходной блок не формирует технологических сигнализаций*)
+	Data.Status.State.ActiveAlarm	:= eAlarmType.No;
+
+(*Упаковка состояний режимов - после обработки, чтобы статус отражал итог цикла*)
+	Data.Status.MemoryBranch.Mode	:= 0;
+	Data.Status.State.Disabled		:= NOT Data.RTD.RDD.enEnable;
+	Data.Status.State.Imitation		:= Data.RTD.RDD.enImit;
+
+(*Синхронизация памяти - запись*)
+	SyncOut();

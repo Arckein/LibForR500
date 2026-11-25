@@ -3,6 +3,13 @@ VAR
 	newAO	: AnalogOut;
 	lenAO	: UINT;
 END_VAR
+(*
+	Привязка каналов AO (Regul R500, AO 08 0xx).
+	Источник: Системное руководство R500, DPA-311 v2.40, Прил. Г, табл. Г.19 (регистры данных AO).
+	ChStatus		- ST.0: отсутствие внешнего питания модуля (1 - питания нет);
+					  ST.8..ST.15: обрыв на канале 1..8 (для токового выхода).
+	ModuleStatus	- флаг аппаратной ошибки модуля (HW).
+*)
 (*ReservAO1	- C1M5, ch1*)
 	IO.AnalogOut[eAO.ReservAO1].EngValue		:= 0;
 	IO.AnalogOut[eAO.ReservAO1].ChStatus		:= C1M5ST.0 OR C1M5ST.8;

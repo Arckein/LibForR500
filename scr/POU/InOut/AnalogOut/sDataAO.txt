@@ -5,6 +5,8 @@ STRUCT
 	ChStatus		: BOOL;			//Статус с канала
 	ModuleStatus	: BOOL;			//Статус с модуля	
 	Command			: eCommand;		//Команды внешнего управления
+	CmdValue		: REAL;			//Аргумент команды: 0 - выкл, <>0 - вкл (писать ДО Command)
+	Source			: eCommandSource;	//Источник команды
 	RTD				: sRetainAO;	//Хранимые данные
 
 (* Выходные значения *)
