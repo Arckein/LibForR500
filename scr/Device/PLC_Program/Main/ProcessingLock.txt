@@ -1,4 +1,4 @@
-IO.Lock[eLock.ForXV1].Item[1].Condition	:= (IO.AnalogIn[eAI.ReservAI16].Status.MemoryBranch.Errors <> 0)
+IO.Lock[eLock.ForXV1].Item[1].Condition	:= NOT fSignalValid(IO.AnalogIn[eAI.ReservAI16].Status)
 										OR (IO.AnalogIn[eAI.ReservAI16].Status.State.ActiveAlarm = eAlarmType.HH);
 
 lenLock	:= SIZEOF(IO.Lock) / SIZEOF(IO.Lock[1]);

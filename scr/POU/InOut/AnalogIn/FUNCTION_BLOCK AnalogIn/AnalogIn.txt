@@ -10,7 +10,7 @@ VAR
 	localIn		: REAL;	//Буферизированное значение "Вход с канала"
 	i			: UINT;	//Счетчик
 	isValidIn	: BOOL;	//Канал исправен в текущем цикле
-	isHold		: BOOL;	//Значение берется из буфера последнего достоверного
+	isHold		: BOOL;	//Значение берется из буфера последнего достоверного (Заморозка)
 	isCmdOn		: BOOL;	//Аргумент команды: TRUE - включить, FALSE - выключить
 END_VAR
 (*
@@ -38,14 +38,6 @@ SCADA пишет сначала CmdValue, затем Command.
 				Data.RTD.RDD.enEnable		:= isCmdOn;
 			eCommand.Imit:
 				Data.RTD.RDD.enImit			:= isCmdOn;
-				IF isCmdOn THEN
-					Data.RTD.RDD.enRepair	:= FALSE;	//Режимы взаимоисключающие
-				END_IF
-			eCommand.Repair:
-				Data.RTD.RDD.enRepair		:= isCmdOn;
-				IF isCmdOn THEN
-					Data.RTD.RDD.enImit		:= FALSE;	//Режимы взаимоисключающие
-				END_IF
 			eCommand.Freezing:
 				Data.RTD.RDD.enFreezing		:= isCmdOn;
 			eCommand.Filter:
@@ -87,7 +79,7 @@ SCADA пишет сначала CmdValue, затем Command.
 
 (*Основная логика - вкл*)
 	ELSE
-	(*Валидация. Ошибки канала показываются ВСЕГДА, в т.ч. в имитации и ремонте*)
+	(*Валидация. Ошибки канала показываются ВСЕГДА, в т.ч. в имитации*)
 		Validation(Data);
 		isValidIn	:= Data.Status.MemoryBranch.Errors = 0;
 
@@ -98,10 +90,7 @@ SCADA пишет сначала CmdValue, затем Command.
 			ELSE
 				Data.RTD.RDD.isFirstPass	:= TRUE;
 			END_IF
-			(*В ремонте буфер не обновляется - значение замораживается на входе в режим*)
-			IF NOT Data.RTD.RDD.enRepair THEN
-				Data.RTD.RDD.freezingIn	:= localIn;
-			END_IF
+			Data.RTD.RDD.freezingIn	:= localIn;
 		ELSE
 			(*После восстановления канала фильтр стартует с актуального значения*)
 			Data.RTD.RDD.isFirstPass	:= TRUE;
@@ -112,8 +101,8 @@ SCADA пишет сначала CmdValue, затем Command.
 		(*Имитация: значение задает оператор*)
 			Data.EngValue	:= Data.RTD.RDD.ImitVal;
 		ELSE
-		(*Ремонт или ошибка канала с включенной "Заморозкой" - берем буфер*)
-			isHold	:= Data.RTD.RDD.enRepair OR (NOT isValidIn AND Data.RTD.RDD.enFreezing);
+		(*Ошибка канала с включенной "Заморозкой" - берем буфер последнего достоверного*)
+			isHold	:= NOT isValidIn AND Data.RTD.RDD.enFreezing;
 
 			IF Data.Status.State.ConfigFault OR (NOT isValidIn AND NOT isHold) THEN
 				Data.EngValue	:= Data.RTD.YMin;
@@ -133,10 +122,8 @@ SCADA пишет сначала CmdValue, затем Command.
 			END_IF
 		END_IF
 
-	(*Сигнализации: в имитации - всегда (проверка логики), в работе - только по исправному каналу.
-	В ремонте и при ошибке канала сигнализации сняты*)
-		IF Data.RTD.RDD.enAlarmMode
-			AND (Data.RTD.RDD.enImit OR (isValidIn AND NOT Data.RTD.RDD.enRepair)) THEN
+	(*Сигнализации: в имитации - всегда (проверка логики), в работе - только по исправному каналу*)
+		IF Data.RTD.RDD.enAlarmMode AND (Data.RTD.RDD.enImit OR isValidIn) THEN
 			Data.Status.State.ActiveAlarm	:= CheckAlarms(Data);
 		ELSE
 			Data.Status.State.ActiveAlarm	:= eAlarmType.No;
@@ -151,7 +138,6 @@ SCADA пишет сначала CmdValue, затем Command.
 	Data.Status.State.Filter	:= Data.RTD.RDD.enFilter;
 	Data.Status.State.CutOff	:= Data.RTD.RDD.enCutOff;
 	Data.Status.State.AlarmMode	:= Data.RTD.RDD.enAlarmMode;
-	Data.Status.State.Repair	:= Data.RTD.RDD.enRepair;
 
 (*Синхронизация памяти - запись*)
 	SyncOut();
