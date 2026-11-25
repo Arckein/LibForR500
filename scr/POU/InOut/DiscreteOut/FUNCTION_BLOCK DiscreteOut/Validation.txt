@@ -1,10 +1,10 @@
-METHOD Validation : eStatus
+METHOD Validation
 VAR_IN_OUT
 	mData	: sDataDO;
 END_VAR
 (*Сбрасываем ошибки перед проверкой*)
 	mData.Status.MemoryBranch.Errors	:= 0;
 (*Проверка исправности модуля*)
-	mData.Status.State.ModuleFault := mData.ModuleStatus;
+	mData.Status.State.ModuleFault	:= mData.ModuleStatus;
 (*Проверка исправности канала*)
-	mData.Status.State.ChFault := mData.ChStatus;
+	mData.Status.State.ChFault		:= mData.ChStatus;

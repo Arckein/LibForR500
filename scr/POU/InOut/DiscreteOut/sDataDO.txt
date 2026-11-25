@@ -4,7 +4,9 @@ STRUCT
 	EngValue		: BOOL;			//Команда от логики управления
 	ChStatus		: BOOL;			//Ошибка канала (TRUE - Ошибка)
 	ModuleStatus	: BOOL;			//Ошибка модуля (TRUE - Ошибка)
-	Command			: eCommand;		//Команды с HMI
+	Command			: eCommand;		//Команды внешнего управления
+	CmdValue		: REAL;			//Аргумент команды: 0 - выкл, <>0 - вкл (писать ДО Command)
+	Source			: eCommandSource;	//Источник команды
 	RTD				: sRetainDO;	//Хранимые данные
     
 (*Выходные значения*)

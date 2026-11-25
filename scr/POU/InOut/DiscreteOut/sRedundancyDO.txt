@@ -1,10 +1,11 @@
 TYPE sRedundancyDO :
 STRUCT
-	ImitVal		: BOOL;				//Значение для имитации
-	
+	ImitVal		: BOOL;				//Значение выхода, заданное оператором в режиме "Имитация"
+
 	enEnable	: BOOL	:= TRUE;	//Разрешение работы алгоритма
-    enImit		: BOOL;				//Режим ручной имитации
-    enInvert	: BOOL;				//Инверсия выходного физического сигнала
-	enRepair	: bool;				//Режим ремонт
+	enImit		: BOOL;				//Имитация (ручное задание выхода) вкл/выкл
+	enInvert	: BOOL;				//Инверсия выходного физического сигнала
+
+	Logger	: ARRAY [1..5] OF sCommandLog;	//5 последних команд, [1] - последняя
 END_STRUCT
 END_TYPE
