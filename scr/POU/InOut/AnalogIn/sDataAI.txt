@@ -5,6 +5,7 @@ STRUCT
 	ChStatus		: BOOL;			//Статус с канала (TRUE - Ошибка связи/канала, FALSE - Норма)
 	ModuleStatus	: BOOL;			//Статус с модуля	
 	Command			: eCommand;		//Команды внешнего управления
+	CmdValue		: REAL;			//Аргумент команды: 0 - выкл, <>0 - вкл (писать ДО Command)
 	Source			: eCommandSource;
 	RTD				: sRetainAI;	//Хранимые данных
 	

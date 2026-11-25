@@ -5,37 +5,43 @@ END_VAR
 (*Сбрасываем стек*)
 	mData.Status.MemoryBranch.Errors := 0;
 
-(*Проверка корректности конфигурации*)
-	CASE mData.Rtd.ScaleType OF
+(*Проверка корректности конфигурации шкалы*)
+	CASE mData.RTD.ScaleType OF
 		eScaleType.dLinear,
 		eScaleType.iLinear,
-		eScaleType.dQuadratic,
-		eScaleType.iQuadratic,
-		eScaleType.dExponential,
-		eScaleType.iExponential	:
-								IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
-									mData.Status.State.ConfigFault := TRUE;
-								END_IF
-		
+		eScaleType.dSqrt,
+		eScaleType.iSqrt,
+		eScaleType.dSquare,
+		eScaleType.iSquare	:
+							IF (mData.RTD.XMax - mData.RTD.XMin) <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+								mData.Status.State.ConfigFault := TRUE;
+							END_IF
+
 		eScaleType.byCoeff :
 							IF mData.RTD.Coeff <= 0.001 OR (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
 								mData.Status.State.ConfigFault := TRUE;
 							END_IF
-		
+
 		eScaleType.NaN :
-						IF (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
-							mData.Status.State.ConfigFault := TRUE;
-						END_IF
-	END_CASE
-	
-	IF mData.RTD.RDD.enFilter AND mData.RTD.TF <= 0.001 THEN
+							IF (mData.RTD.YMax - mData.RTD.YMin) <= 0.001 THEN
+								mData.Status.State.ConfigFault := TRUE;
+							END_IF
+	ELSE
+		(*Неизвестный тип шкалы*)
 		mData.Status.State.ConfigFault := TRUE;
+	END_CASE
+
+(*Фильтр без постоянной времени - это не неисправность датчика.
+Выключаем фильтр, статус "Фильтрация" покажет фактическое состояние*)
+	IF mData.RTD.RDD.enFilter AND mData.RTD.TF <= 0.001 THEN
+		mData.RTD.RDD.enFilter := FALSE;
 	END_IF
 
-(*Проверка на обрыв цепи*)
-		IF mData.RawValue >= 3.402823E+38 OR mData.RawValue <= -3.402823E+38 THEN
-			mData.Status.State.ExternalBreak := TRUE;
-		END_IF
+(*Проверка на обрыв цепи (Regul R500 отдает +-3.402823E+38).
+Коды других платформ приводятся к этому виду в слое привязки (InputAI)*)
+	IF mData.RawValue >= 3.402823E+38 OR mData.RawValue <= -3.402823E+38 THEN
+		mData.Status.State.ExternalBreak := TRUE;
+	END_IF
 
 (*Проверка на исправность модуля*)
 	IF mData.ModuleStatus THEN

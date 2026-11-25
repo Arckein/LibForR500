@@ -1,6 +1,6 @@
 TYPE sSystemInfo :
 STRUCT
-	CycleTime	: REAL:= 0.1;	//Время цикла шины (по умолчанию 100 мс)
+	CycleTime	: REAL:= 100.0;	//Время цикла задачи, мс (заполняет fCycleTime)
 	RedMode		: INT;			//Текущий статус резервирования проекта
 	RDD_Active	: BOOL;			//Флаг резервирования "Ведущий"
 	RDD_Standby	: BOOL;			//Флаг резервирования "Ведомый"

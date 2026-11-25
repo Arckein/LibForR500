@@ -2,5 +2,6 @@ TYPE sCommandLog :
 STRUCT
 	Command	: eCommand;
 	Source	: eCommandSource;
+	Value	: REAL;		//Аргумент команды (0 - выкл, <>0 - вкл)
 END_STRUCT
 END_TYPE
