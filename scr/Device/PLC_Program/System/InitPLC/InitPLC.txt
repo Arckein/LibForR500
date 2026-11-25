@@ -1,4 +1,7 @@
 PROGRAM InitPLC
+VAR
+	wasStandby	: BOOL;	//Роль ПЛК в предыдущем цикле - "Ведомый"
+END_VAR
 VAR CONSTANT
 	Signature	: DWORD	:= 16#A5A5A5A5;
 END_VAR
@@ -9,10 +12,13 @@ END_VAR
 (*Получаем время выполняемой задачи*)
 	System.SystemInfo.CycleTime	:= fCycleTime();	//Записываем время цикла задачи, в которой находится POU
 (*Получаем статусы резервной пары модулей CU*)
+	wasStandby						:= System.SystemInfo.RDD_Standby;	//Запоминаем роль до обновления
 	System.SystemInfo.Redmode 		:= PsRedundancy_OS.GetMode();
 	System.SystemInfo.RDD_Active	:= (System.SystemInfo.Redmode=PsRedundancy_OS.ACTIVE)
 										OR (System.SystemInfo.RedMode=PsRedundancy_OS.ACTIVE_STANDALONE);	//Формируем флаг для ведущего/автономного ПЛК
 	System.SystemInfo.RDD_Standby	:= (System.SystemInfo.Redmode=PsRedundancy_OS.STANDBY);	//Формируем флаг для ведомого ПЛК
+	System.SystemInfo.RDD_Switched	:= System.SystemInfo.RDD_Active AND wasStandby;	//Переход "Ведомый" -> "Ведущий":
+										//в этом цикле ФБ забирают состояние из retain (последний снимок бывшего ведущего)
 
 (*Первый цикл ПЛК*)
 	IF NOT System.SystemInfo.FirstScan THEN
