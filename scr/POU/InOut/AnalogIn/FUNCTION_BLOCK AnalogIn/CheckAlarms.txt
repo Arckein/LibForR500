@@ -30,7 +30,7 @@ END_VAR
 			ELSIF mData.EngValue < (mData.RTD.H - mData.RTD.HYST) THEN
 				isH	:= FALSE;
 			ELSE
-				isH	:= (mData.Status.State.ActiveAlarm = eAlarmType.H);
+				isH	:= (mData.Status.State.ActiveAlarm = eAlarmType.H) OR (mData.Status.State.ActiveAlarm = eAlarmType.HH);	//ВПУ удерживается и после снятия ВАУ
 			END_IF
 		END_IF
 	(*НПУ, если активна*)
@@ -40,7 +40,7 @@ END_VAR
 			ELSIF mData.EngValue > (mData.RTD.L + mData.RTD.HYST) THEN
 				isL := FALSE;
 			ELSE
-				isL	:= (mData.Status.State.ActiveAlarm = eAlarmType.L);
+				isL	:= (mData.Status.State.ActiveAlarm = eAlarmType.L) OR (mData.Status.State.ActiveAlarm = eAlarmType.LL);	//НПУ удерживается и после снятия НАУ
 			END_IF
 		END_IF
 	(*НАУ, если активна*)
