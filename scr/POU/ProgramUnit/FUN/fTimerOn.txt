@@ -1,12 +1,18 @@
 (*
 	Таймер задержки включения библиотеки (замена TON).
 	Собственной памяти нет: все состояние - в Tmr (sTimer в retain-части объекта).
-	IN = FALSE		-> Ready, ET = 0
-	IN = TRUE		-> Running, ET копит CycleTime
-	ET >= PT		-> Done, ET = PT; возвращает TRUE
-	PT <= 0			-> Done в первом же цикле с IN = TRUE
-	Сброс: вызов с IN := FALSE.
+	Вызывается КАЖДЫЙ цикл с фактическим входом IN.
+
+	Машина состояний:
+		Ready	--IN-->					Running	(первый цикл отсчета)
+		Running	--ET >= PT-->			Done
+		Done	--PT увеличили-->		Running	(отсчет продолжается)
+		любое	--NOT IN-->				Ready	(ET = 0)
+		Reset	-->						Ready	(ET = 0), при IN = TRUE в том же вызове - старт отсчета
+	Сброс при активном входе: владелец пишет Tmr.State := eTimerState.Reset.
+
 	PT - секунды (как TD/TF в retain-данных), CycleTime - мс (sSystemInfo.CycleTime).
+	PT <= 0 - Done в первом же цикле с IN = TRUE.
 *)
 FUNCTION fTimerOn : BOOL
 VAR_IN_OUT
@@ -19,19 +25,44 @@ VAR_INPUT
 END_VAR
 Tmr.PT	:= MAX(PT * 1000, 0.0);
 
-IF NOT IN THEN
-	Tmr.ET		:= 0.0;
-	Tmr.State	:= eTimerState.Ready;
-ELSE
-	IF Tmr.ET < Tmr.PT THEN
-		Tmr.ET	:= Tmr.ET + CycleTime;
+(*Сброс: по запросу владельца или при снятии входа*)
+	IF Tmr.State = eTimerState.Reset OR NOT IN THEN
+		Tmr.ET		:= 0.0;
+		Tmr.State	:= eTimerState.Ready;
 	END_IF
-	IF Tmr.ET >= Tmr.PT THEN
+
+(*Машина состояний*)
+	CASE Tmr.State OF
+		eTimerState.Ready:
+		(*Готов к работе: старт по входу, первый цикл отсчета*)
+			IF IN THEN
+				Tmr.ET		:= CycleTime;
+				Tmr.State	:= eTimerState.Running;
+			END_IF
+
+		eTimerState.Running:
+		(*В работе: отсчет*)
+			IF Tmr.ET < Tmr.PT THEN
+				Tmr.ET	:= Tmr.ET + CycleTime;
+			END_IF
+
+		eTimerState.Done:
+		(*Закончил отсчет: ждет снятия входа или сброса.
+		Уставку увеличили на ходу - продолжает отсчет*)
+			IF Tmr.ET < Tmr.PT THEN
+				Tmr.ET		:= Tmr.ET + CycleTime;
+				Tmr.State	:= eTimerState.Running;
+			END_IF
+	ELSE
+	(*Недопустимое значение (например, испорченная retain-память) - в исходное состояние*)
+		Tmr.ET		:= 0.0;
+		Tmr.State	:= eTimerState.Ready;
+	END_CASE
+
+(*Окончание отсчета*)
+	IF Tmr.State = eTimerState.Running AND Tmr.ET >= Tmr.PT THEN
 		Tmr.ET		:= Tmr.PT;	//Отсчет не растет дальше уставки
 		Tmr.State	:= eTimerState.Done;
-	ELSE
-		Tmr.State	:= eTimerState.Running;
 	END_IF
-END_IF
 
 fTimerOn	:= Tmr.State = eTimerState.Done;
