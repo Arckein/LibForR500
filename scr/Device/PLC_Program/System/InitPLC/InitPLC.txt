@@ -34,6 +34,8 @@ END_VAR
 				
 				InitAOParam();	//Для IO.AnalogOut
 				InitDOParam();	//Для IO.DiscreteOut
+				
+				InitLockParam();	//Для IO.Lock
 		ELSE
 		(*Холодная прогрузка проекта*)
 			System.SystemInfo.isInit		:= FALSE;

@@ -81,11 +81,11 @@ SCADA пишет CmdValue и CmdIndex, затем Command. Ведомый ком
 		END_IF
 	END_FOR
 
-(*Первопричина: фиксируется первый сработавший ключ (при одновременной сработке - меньший номер)*)
+(*Первопричина: фиксируется первый сработавший ключ (при одновременной сработке - меньший номер).
+Хранится только в RDD.FirstIndex (retain), для SCADA - IO.Lock[n].RDD.FirstIndex*)
 	IF Data.RDD.FirstIndex = 0 THEN
 		Data.RDD.FirstIndex	:= firstTrip;
 	END_IF
-	Data.FirstIndex	:= Data.RDD.FirstIndex;
 
 (*Синхронизация памяти - запись*)
 	SyncOut();

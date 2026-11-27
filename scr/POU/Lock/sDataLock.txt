@@ -11,6 +11,5 @@ STRUCT
 (*Выходные значения*)
 	isLockActivate		: BOOL;	//Блокировка активации (открытия / запуска)
 	isLockDeactivate	: BOOL;	//Блокировка деактивации (закрытия / остановки)
-	FirstIndex			: INT;	//Первопричина (копия RDD.FirstIndex)
 END_STRUCT
 END_TYPE

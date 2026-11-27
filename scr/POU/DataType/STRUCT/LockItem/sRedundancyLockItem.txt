@@ -1,6 +1,7 @@
 TYPE sRedundancyLockItem :
 STRUCT
-	enEnable	: BOOL	:= TRUE;	//Ключ в работе (FALSE - выведен оператором)
+	enEnable	: BOOL;			//Ключ в работе. FALSE - не используется / выведен оператором.
+								//Включается в InitLockParam или командой Enable
 	Delay		: sTimer;			//Таймер задержки срабатывания
 END_STRUCT
 END_TYPE
