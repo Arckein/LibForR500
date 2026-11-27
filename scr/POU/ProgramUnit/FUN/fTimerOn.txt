@@ -6,10 +6,9 @@
 	Машина состояний:
 		Ready	--IN-->					Running	(первый цикл отсчета)
 		Running	--ET >= PT-->			Done
-		Done	--PT увеличили-->		Running	(отсчет продолжается)
 		любое	--NOT IN-->				Ready	(ET = 0)
 		Reset, недопустимое -->			Ready	(ET = 0), при IN = TRUE в том же вызове - старт отсчета
-		Done	--PT уменьшили-->		Done	(ET = PT)
+		Done	--IN-->					Done	(держится; смена PT не отменяет отсчитанное, ET = PT)
 	Сброс при активном входе: владелец пишет Tmr.State := eTimerState.Reset.
 
 	PT - секунды (как TD/TF в retain-данных), CycleTime - мс (sSystemInfo.CycleTime).
@@ -50,16 +49,13 @@ Tmr.PT	:= MAX(PT * 1000, 0.0);
 			END_IF
 
 		eTimerState.Done:
-		(*Закончил отсчет: ждет снятия входа или сброса.
-		Уставку увеличили на ходу - продолжает отсчет*)
-			IF Tmr.ET < Tmr.PT THEN
-				Tmr.ET		:= Tmr.ET + CycleTime;
-				Tmr.State	:= eTimerState.Running;
-			END_IF
+		(*Закончил отсчет: держится, пока активен вход (до снятия входа или сброса).
+		Изменение уставки на ходу отсчитанное не отменяет*)
+			Tmr.ET	:= Tmr.PT;
 	END_CASE
 
-(*Окончание отсчета. Для Done - также при уменьшении уставки на ходу*)
-	IF (Tmr.State = eTimerState.Running OR Tmr.State = eTimerState.Done) AND Tmr.ET >= Tmr.PT THEN
+(*Окончание отсчета (в т.ч. при уменьшении уставки во время отсчета)*)
+	IF Tmr.State = eTimerState.Running AND Tmr.ET >= Tmr.PT THEN
 		Tmr.ET		:= Tmr.PT;	//Отсчет не растет дальше уставки
 		Tmr.State	:= eTimerState.Done;
 	END_IF
