@@ -7,14 +7,14 @@ END_VAR
 	IF SysInfo.isInit OR SysInfo.isColdStart OR mData.RTD.RDD.isFirstPass THEN
 		mData.RTD.RDD.filteredIn	:= localIn;
 		mData.RTD.RDD.isFirstPass	:= FALSE;
-		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
+		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := mData.RTD.TF, CycleTime := SysInfo.CycleTime);	//Значения совпали - вход таймера не активен
 		ApplyFilter					:= localIn;
 		RETURN;
 	END_IF
 (*Защита от нулевого времени фильтра*)
 	IF mData.RTD.TF <= 0.001 THEN
 		mData.RTD.RDD.filteredIn	:= localIn;
-		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
+		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := mData.RTD.TF, CycleTime := SysInfo.CycleTime);	//Значения совпали - вход таймера не активен
 		ApplyFilter					:= localIn;
 		RETURN;
 	END_IF
@@ -26,6 +26,6 @@ END_VAR
 				PT			:= mData.RTD.TF,
 				CycleTime	:= SysInfo.CycleTime) THEN
 		mData.RTD.RDD.filteredIn	:= localIn;
-		fTimerOn(Tmr := mData.RTD.RDD.filterTimer, IN := FALSE, PT := 0.0, CycleTime := 0.0);	//Сброс таймера
+		mData.RTD.RDD.filterTimer.State	:= eTimerState.Reset;	//Новое значение принято - следующее изменение отсчитывается заново
 	END_IF
 ApplyFilter	:= mData.RTD.RDD.filteredIn;
