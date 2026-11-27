@@ -8,7 +8,8 @@
 		Running	--ET >= PT-->			Done
 		Done	--PT увеличили-->		Running	(отсчет продолжается)
 		любое	--NOT IN-->				Ready	(ET = 0)
-		Reset	-->						Ready	(ET = 0), при IN = TRUE в том же вызове - старт отсчета
+		Reset, недопустимое -->			Ready	(ET = 0), при IN = TRUE в том же вызове - старт отсчета
+		Done	--PT уменьшили-->		Done	(ET = PT)
 	Сброс при активном входе: владелец пишет Tmr.State := eTimerState.Reset.
 
 	PT - секунды (как TD/TF в retain-данных), CycleTime - мс (sSystemInfo.CycleTime).
@@ -25,8 +26,10 @@ VAR_INPUT
 END_VAR
 Tmr.PT	:= MAX(PT * 1000, 0.0);
 
-(*Сброс: по запросу владельца или при снятии входа*)
-	IF Tmr.State = eTimerState.Reset OR NOT IN THEN
+(*Сброс: снятие входа, запрос владельца (Reset) или недопустимое значение состояния
+(например, испорченная retain-память)*)
+	IF NOT IN
+		OR NOT (Tmr.State = eTimerState.Ready OR Tmr.State = eTimerState.Running OR Tmr.State = eTimerState.Done) THEN
 		Tmr.ET		:= 0.0;
 		Tmr.State	:= eTimerState.Ready;
 	END_IF
@@ -53,14 +56,10 @@ Tmr.PT	:= MAX(PT * 1000, 0.0);
 				Tmr.ET		:= Tmr.ET + CycleTime;
 				Tmr.State	:= eTimerState.Running;
 			END_IF
-	ELSE
-	(*Недопустимое значение (например, испорченная retain-память) - в исходное состояние*)
-		Tmr.ET		:= 0.0;
-		Tmr.State	:= eTimerState.Ready;
 	END_CASE
 
-(*Окончание отсчета*)
-	IF Tmr.State = eTimerState.Running AND Tmr.ET >= Tmr.PT THEN
+(*Окончание отсчета. Для Done - также при уменьшении уставки на ходу*)
+	IF (Tmr.State = eTimerState.Running OR Tmr.State = eTimerState.Done) AND Tmr.ET >= Tmr.PT THEN
 		Tmr.ET		:= Tmr.PT;	//Отсчет не растет дальше уставки
 		Tmr.State	:= eTimerState.Done;
 	END_IF
