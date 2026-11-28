@@ -1,8 +1,44 @@
-(*Начальные параметры блокировок.
-Ключ работает, только если он включен здесь (RTD.RDD.enEnable := TRUE) или командой Enable.
-По умолчанию все ключи не используются*)
+(*Начальные параметры блокировок. Задаются целыми наборами: IO.Lock[набор].Item[ключ].
+Нулевое доверие: ключ без разрешения (RTD.RDD.enEnable = FALSE) взведен и блокирует механизм,
+поэтому в наборе разрешаются ВСЕ ключи, включая неиспользуемые.
+Ключи 1..8 - запрет активации (открытия / запуска), 9..16 - запрет деактивации (закрытия / остановки)*)
 
-(*ForXV1 - блокировки задвижки XV1*)
-	(*Ключ 1: запрет открытия - AI16 недостоверен или ВАУ*)
-	IO.Lock[eLock.ForXV1].Item[1].RTD.TD			:= 0.0;
-	IO.Lock[eLock.ForXV1].Item[1].RTD.RDD.enEnable	:= TRUE;
+(*ForXV1*)
+	(*Запрет активации*)
+	IO.Lock[eLock.ForXV1].Item[1].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[1].RTD.RDD.enEnable	:= TRUE;	//AI16 недостоверен или ВАУ
+	IO.Lock[eLock.ForXV1].Item[2].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[2].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[3].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[3].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[4].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[4].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[5].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[5].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[6].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[6].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[7].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[7].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[8].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[8].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	(*Запрет деактивации*)
+	IO.Lock[eLock.ForXV1].Item[9].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[9].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[10].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[10].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[11].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[11].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[12].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[12].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[13].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[13].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[14].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[14].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[15].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[15].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV1].Item[16].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV1].Item[16].RTD.RDD.enEnable	:= TRUE;	//Не используется
+
+(*ForXV2*)
+	(*Запрет активации*)
+	IO.Lock[eLock.ForXV2].Item[1].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[1].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[2].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[2].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[3].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[3].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[4].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[4].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[5].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[5].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[6].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[6].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[7].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[7].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[8].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[8].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	(*Запрет деактивации*)
+	IO.Lock[eLock.ForXV2].Item[9].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[9].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[10].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[10].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[11].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[11].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[12].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[12].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[13].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[13].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[14].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[14].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[15].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[15].RTD.RDD.enEnable	:= TRUE;	//Не используется
+	IO.Lock[eLock.ForXV2].Item[16].RTD.TD			:= 0.0;	IO.Lock[eLock.ForXV2].Item[16].RTD.RDD.enEnable	:= TRUE;	//Не используется
