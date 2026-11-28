@@ -9,7 +9,7 @@ END_VAR
 		IO.Valve[eValve.XV1].RTD.idClosedLS		:= eDI.ReservDI2;
 		IO.Valve[eValve.XV1].RTD.idPowerState	:= eDI.ReservDI3;
 		IO.Valve[eValve.XV1].RTD.idKeyOfLCP		:= eDI.ReservDI4;
-		//IO.Valve[eValve.XV1].RTD.idLock;
+		IO.Valve[eValve.XV1].RTD.idLock			:= eLock.ForXV1;
 		//IO.Valve[eValve.XV1].RTD.idEps;
 	(*Конфигурация*)
 		IO.Valve[eValve.XV1].RTD.SafeState		:= eMechSafeState.Deactivate;

@@ -3,8 +3,19 @@ VAR
 	newLock	: Lock;
 	lenLock	: UINT;
 END_VAR
-IO.Lock[eLock.ForXV1].Item[1].Condition	:= NOT fSignalValid(IO.AnalogIn[eAI.ReservAI16].Status)
-										OR (IO.AnalogIn[eAI.ReservAI16].Status.State.ActiveAlarm = eAlarmType.HH);
+(*Условия ключей блокировок. Параметры ключей (TD, разрешение) - InitPLC.InitLockParam*)
+
+(*========================================================
+ForXV1 - блокировки задвижки XV1
+========================================================*)
+	(*Ключ 1 - запрет открытия: AI16 недостоверен или ВАУ*)
+	IO.Lock[eLock.ForXV1].Item[1].Condition	:= NOT fSignalValid(IO.AnalogIn[eAI.ReservAI16].Status)
+											OR (IO.AnalogIn[eAI.ReservAI16].Status.State.ActiveAlarm = eAlarmType.HH);
+
+(*========================================================
+ForXV2 - блокировки задвижки XV2
+========================================================*)
+	(*Условия не заданы*)
 
 lenLock	:= SIZEOF(IO.Lock) / SIZEOF(IO.Lock[1]);
 FOR i	:= 1 TO lenLock DO

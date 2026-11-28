@@ -1,6 +1,8 @@
+{attribute 'qualified_only'}
+{attribute 'strict'}
 TYPE eLock :
 (
-	ForXV1	:= 1,
-	ForXV2	:= 2
-);
+	ForXV1	:= 1,	//Блокировки задвижки XV1
+	ForXV2	:= 2	//Блокировки задвижки XV2
+)	UINT;
 END_TYPE
